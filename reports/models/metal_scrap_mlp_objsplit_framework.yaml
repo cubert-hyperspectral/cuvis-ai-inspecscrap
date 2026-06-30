@@ -1,0 +1,74 @@
+plugins: null
+nodes:
+- name: standardizer
+  class_name: cuvis_ai_inspecscrap.node.normalization.PerChannelStandardizer
+  hparams:
+    in_channels: 437
+    eps: 1.0e-06
+- name: classifier
+  class_name: cuvis_ai_inspecscrap.node.classification.mlp.SpectralMLPClassifier
+  hparams:
+    in_channels: 437
+    num_classes: 14
+    hidden1: 256
+    hidden2: 128
+    dropout: 0.0
+- name: loss
+  class_name: cuvis_ai_inspecscrap.node.losses.WeightedCrossEntropyLoss
+  hparams:
+    num_classes: 14
+    class_weights:
+    - 0.3034605085849762
+    - 1.191637635231018
+    - 24.428571701049805
+    - 0.6514285802841187
+    - 0.0
+    - 0.4285714328289032
+    - 4.441558361053467
+    - 1.601873517036438
+    - 2.1242237091064453
+    - 1.954285740852356
+    - 0.43622449040412903
+    - 1.123152732849121
+    - 1.163265347480774
+    - 12.214285850524902
+    weight: 1.0
+    ignore_index: -100
+    label_smoothing: 0.0
+- name: metrics
+  class_name: cuvis_ai_inspecscrap.node.metrics.MulticlassSegmentationMetrics
+  hparams:
+    num_classes: 14
+    ignore_index: -100
+    class_names:
+    - steel
+    - aluminium
+    - copper
+    - dark_rust_metal
+    - light_rust_metal
+    - painted_metal
+    - can
+    - stone
+    - wood
+    - painted_wood
+    - plastic
+    - rubber
+    - styropor
+    - fabric
+    execution_stages: null
+connections:
+- source: standardizer.outputs.normalized
+  target: classifier.inputs.patches
+- source: classifier.outputs.logits
+  target: loss.inputs.logits
+- source: classifier.outputs.logits
+  target: metrics.inputs.logits
+metadata:
+  name: Metal_Scrap_MLP
+  description: mlp patch classifier, framework-trained (200 epochs).
+  created: ''
+  tags:
+  - metal_scrap
+  - mlp
+  author: ''
+  cuvis_ai_version: 0.7.0

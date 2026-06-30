@@ -1,0 +1,42 @@
+# Metal-scrap spatial-spectral 2D-CNN (Gursch et al. 2026, 74.06%).
+# Bands as input channels over the 7x7 patch; otherwise identical wiring to the MLP pipeline.
+metadata:
+  name: Metal_Scrap_CNN2D
+  description: Spatial-spectral 2D-CNN over 7x7 patches, weighted CE, 14 material classes.
+  tags: [metal_scrap, classification, cnn2d]
+plugins:
+- cuvis_ai_inspecscrap
+nodes:
+- name: standardizer
+  class_name: cuvis_ai_inspecscrap.node.normalization.PerChannelStandardizer
+  hparams:
+    in_channels: 437
+    eps: 1.0e-06
+- name: classifier
+  class_name: cuvis_ai_inspecscrap.node.classification.cnn2d.SpatialSpectralCNN2D
+  hparams:
+    in_channels: 437
+    num_classes: 14
+    channels: [32, 64, 128]
+- name: loss
+  class_name: cuvis_ai_inspecscrap.node.losses.WeightedCrossEntropyLoss
+  hparams:
+    num_classes: 14
+    class_weights: [0.265022, 1.795148, 11.892858, 0.517081, 0.0, 0.517081, 1.69898, 1.902857, 1.69898, 1.902857, 0.464112, 1.559719, 2.162338, 4.324676]
+    weight: 1.0
+    ignore_index: -100
+    label_smoothing: 0.0
+- name: metrics
+  class_name: cuvis_ai_inspecscrap.node.metrics.MulticlassSegmentationMetrics
+  hparams:
+    num_classes: 14
+    ignore_index: -100
+    class_names: [steel, aluminium, copper, dark_rust_metal, light_rust_metal, painted_metal, can, stone, wood, painted_wood, plastic, rubber, styropor, fabric]
+    execution_stages: null
+connections:
+- source: standardizer.outputs.normalized
+  target: classifier.inputs.patches
+- source: classifier.outputs.logits
+  target: loss.inputs.logits
+- source: classifier.outputs.logits
+  target: metrics.inputs.logits

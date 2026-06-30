@@ -1,0 +1,45 @@
+# Metal-scrap spectral-spatial 3D-CNN (Gursch et al. 2026, best model: 76.47%).
+# Each 7x7 patch is a single-channel spectral volume; otherwise identical wiring to the MLP pipeline.
+metadata:
+  name: Metal_Scrap_CNN3D
+  description: Spectral-spatial 3D-CNN over 7x7 patches, weighted CE, 14 material classes.
+  tags: [metal_scrap, classification, cnn3d]
+plugins:
+- cuvis_ai_inspecscrap
+nodes:
+- name: standardizer
+  class_name: cuvis_ai_inspecscrap.node.normalization.PerChannelStandardizer
+  hparams:
+    in_channels: 437
+    eps: 1.0e-06
+- name: classifier
+  class_name: cuvis_ai_inspecscrap.node.classification.cnn3d.SpectralSpatialCNN3D
+  hparams:
+    in_channels: 437
+    num_classes: 14
+    conv3d_channels: [8, 16, 32]
+    conv2d_channels: 64
+    spectral_keep: 4
+    hidden: [256, 128]
+- name: loss
+  class_name: cuvis_ai_inspecscrap.node.losses.WeightedCrossEntropyLoss
+  hparams:
+    num_classes: 14
+    class_weights: [0.265022, 1.795148, 11.892858, 0.517081, 0.0, 0.517081, 1.69898, 1.902857, 1.69898, 1.902857, 0.464112, 1.559719, 2.162338, 4.324676]
+    weight: 1.0
+    ignore_index: -100
+    label_smoothing: 0.0
+- name: metrics
+  class_name: cuvis_ai_inspecscrap.node.metrics.MulticlassSegmentationMetrics
+  hparams:
+    num_classes: 14
+    ignore_index: -100
+    class_names: [steel, aluminium, copper, dark_rust_metal, light_rust_metal, painted_metal, can, stone, wood, painted_wood, plastic, rubber, styropor, fabric]
+    execution_stages: null
+connections:
+- source: standardizer.outputs.normalized
+  target: classifier.inputs.patches
+- source: classifier.outputs.logits
+  target: loss.inputs.logits
+- source: classifier.outputs.logits
+  target: metrics.inputs.logits

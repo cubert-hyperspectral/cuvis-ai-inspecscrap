@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# Large regenerated artifacts (not deliverables)
+.patch_cache/
+reports/ckpt/
+reports/logs/
+outputs/
+
+# Dataset: download from Zenodo (DOI 10.5281/zenodo.17076238); not redistributed here
+data/
+
+# OS
+.DS_Store
+Thumbs.db

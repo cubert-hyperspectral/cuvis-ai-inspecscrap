@@ -1,0 +1,22 @@
+[project]
+name = "cuvis-ai-inspecscrap"
+version = "0.2.0"
+description = "Cuvis.AI nodes reproducing the InSpecScrap SWIR steel-scrap pixel classifier (Gursch et al. 2026): patch sampling, MLP/2D-CNN/3D-CNN models, weighted cross-entropy, segmentation metrics, and object-level majority vote"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Cubert GmbH" }]
+# TIFF reading + label pairing come from the cuvis-ai-dataloader `tiff_paired` DataModule;
+# cuvis-ai / cuvis-ai-dataloader[tiff] are provided by the runtime env.
+dependencies = [
+    "pillow>=10.0",
+    "scikit-image>=0.22",
+    "numpy",
+    "torch",
+]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["cuvis_ai_inspecscrap*"]

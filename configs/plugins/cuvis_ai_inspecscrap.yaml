@@ -1,0 +1,25 @@
+# cuvis_ai_inspecscrap plugin manifest (one file = one plugin).
+# The metal-scrap classifier family, data modules, and report sinks; generic colourise/overlay
+# viz nodes now live in the cuvis-ai node catalog. TIFF reading + label pairing come from the
+# cuvis-ai-dataloader `tiff_paired` DataModule, not from this plugin.
+name: cuvis_ai_inspecscrap
+path: "../.."                      # resolves from configs/plugins/ to the package root
+package_name: cuvis-ai-inspecscrap
+capabilities:
+  - { class_name: cuvis_ai_inspecscrap.node.data.TiffDataNode,                        category: source,    tags: [hyperspectral] }
+  - { class_name: cuvis_ai_inspecscrap.node.legend.LegendStripNode,                   category: transform, tags: [video] }
+  - { class_name: cuvis_ai_inspecscrap.node.labels.RgbLabelToClassIndex,              category: transform, tags: [mask, classification, preprocessing] }
+  - { class_name: cuvis_ai_inspecscrap.data.metal_scrap_datamodule.MetalScrapDataModule, kind: data_module, data_module_name: metal_scrap, extras: [tiff] }
+  - { class_name: cuvis_ai_inspecscrap.data.metal_scrap_patch_datamodule.MetalScrapPatchDataModule, kind: data_module, data_module_name: metal_scrap_patch, extras: [tiff] }
+  - { class_name: cuvis_ai_inspecscrap.data.dense_patch_datamodule.DensePatchDataModule, kind: data_module, data_module_name: metal_scrap_dense_patch, extras: [tiff] }
+  - { class_name: cuvis_ai_inspecscrap.data.montage_column_datamodule.MontageColumnDataModule, kind: data_module, data_module_name: metal_scrap_montage_columns }
+  - { class_name: cuvis_ai_inspecscrap.node.class_map_accumulator.ClassMapAccumulator, category: sink,      tags: [mask, classification, postprocessing] }
+  - { class_name: cuvis_ai_inspecscrap.node.montage_sink.MontageColumnSink,              category: sink,      tags: [image, rgb, postprocessing] }
+  - { class_name: cuvis_ai_inspecscrap.node.losses.WeightedCrossEntropyLoss,             category: loss,      tags: [training, classification] }
+  - { class_name: cuvis_ai_inspecscrap.node.metrics.MulticlassSegmentationMetrics,       category: metric,    tags: [evaluation, classification] }
+  - { class_name: cuvis_ai_inspecscrap.node.patch_sampler.PatchSampler,                  category: transform, tags: [hyperspectral, preprocessing] }
+  - { class_name: cuvis_ai_inspecscrap.node.normalization.PerChannelStandardizer,         category: transform, tags: [hyperspectral, normalization, preprocessing] }
+  - { class_name: cuvis_ai_inspecscrap.node.classification.mlp.SpectralMLPClassifier,    category: model,     tags: [hyperspectral, classification, learnable] }
+  - { class_name: cuvis_ai_inspecscrap.node.classification.cnn2d.SpatialSpectralCNN2D,   category: model,     tags: [hyperspectral, classification, learnable] }
+  - { class_name: cuvis_ai_inspecscrap.node.classification.cnn3d.SpectralSpatialCNN3D,   category: model,     tags: [hyperspectral, classification, learnable] }
+  - { class_name: cuvis_ai_inspecscrap.node.deciders.BlobMajorityVote,                   category: transform, tags: [mask, classification, postprocessing] }

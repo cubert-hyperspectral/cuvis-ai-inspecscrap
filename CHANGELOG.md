@@ -1,0 +1,24 @@
+# Changelog
+
+## 0.2.0 - 2026-06-30
+
+Initial public release. A Cuvis.AI reproduction of the InSpecScrap SWIR steel-scrap pixel
+classifier from Gursch et al. 2026.
+
+- **Classifier family as Cuvis.AI nodes.** `SpectralMLPClassifier`, `SpatialSpectralCNN2D`, and
+  `SpectralSpatialCNN3D` reproduce the paper's three architectures over 7x7 spatial-spectral
+  patches, with `PatchSampler`, the fail-closed `RgbLabelToClassIndex` label mapper, the global
+  per-band `PerChannelStandardizer`, the inverse-frequency `WeightedCrossEntropyLoss`, and
+  `MulticlassSegmentationMetrics` (pixel accuracy, macro precision/recall).
+- **Two-phase framework training.** Training runs through the framework's `StatisticalTrainer` and
+  `GradientTrainer` from `configs/trainrun/metal_scrap_{mlp,cnn2d,cnn3d}.yaml`, with both a
+  whole-frame and a leak-safe per-piece split. No bespoke training loop.
+- **Object-level pooling.** `BlobMajorityVote` collapses the per-pixel prediction to one label per
+  connected component; `ClassMapAccumulator` and `MontageColumnSink` scatter and assemble dense
+  predictions for the report.
+- **Data modules.** `metal_scrap`, `metal_scrap_patch`, and `metal_scrap_dense_patch` read the
+  InSpecScrap SWIR TIFF cubes and paired colorized label PNGs and serve the paper's patch batches.
+- **Single plugin manifest** at `configs/plugins/cuvis_ai_inspecscrap.yaml`; generic colourise and
+  overlay viz nodes live in the Cuvis.AI node catalog.
+- **Reproduction report** at `reports/report_cuvis_ai_inspecscrap.html`, with the full result
+  tables, figures, and the deviations from the paper.

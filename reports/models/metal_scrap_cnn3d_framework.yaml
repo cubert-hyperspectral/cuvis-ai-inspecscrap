@@ -1,0 +1,80 @@
+plugins: null
+nodes:
+- name: standardizer
+  class_name: cuvis_ai_inspecscrap.node.normalization.PerChannelStandardizer
+  hparams:
+    in_channels: 437
+    eps: 1.0e-06
+- name: classifier
+  class_name: cuvis_ai_inspecscrap.node.classification.cnn3d.SpectralSpatialCNN3D
+  hparams:
+    in_channels: 437
+    num_classes: 14
+    conv3d_channels:
+    - 8
+    - 16
+    - 32
+    conv2d_channels: 64
+    spectral_keep: 4
+    hidden:
+    - 256
+    - 128
+- name: loss
+  class_name: cuvis_ai_inspecscrap.node.losses.WeightedCrossEntropyLoss
+  hparams:
+    num_classes: 14
+    class_weights:
+    - 0.2650218904018402
+    - 1.795148253440857
+    - 11.892857551574707
+    - 0.5170807242393494
+    - 0.0
+    - 0.5170807242393494
+    - 1.6989796161651611
+    - 1.9028571844100952
+    - 1.6989796161651611
+    - 1.9028571844100952
+    - 0.4641115069389343
+    - 1.5597189664840698
+    - 2.1623377799987793
+    - 4.324675559997559
+    weight: 1.0
+    ignore_index: -100
+    label_smoothing: 0.0
+- name: metrics
+  class_name: cuvis_ai_inspecscrap.node.metrics.MulticlassSegmentationMetrics
+  hparams:
+    num_classes: 14
+    ignore_index: -100
+    class_names:
+    - steel
+    - aluminium
+    - copper
+    - dark_rust_metal
+    - light_rust_metal
+    - painted_metal
+    - can
+    - stone
+    - wood
+    - painted_wood
+    - plastic
+    - rubber
+    - styropor
+    - fabric
+    execution_stages: null
+connections:
+- source: standardizer.outputs.normalized
+  target: classifier.inputs.patches
+- source: classifier.outputs.logits
+  target: loss.inputs.logits
+- source: classifier.outputs.logits
+  target: metrics.inputs.logits
+metadata:
+  name: Metal_Scrap_CNN3D
+  description: cnn3d patch classifier, framework-trained (200 epochs).
+  created: ''
+  tags:
+  - metal_scrap
+  - cnn3d
+  author: ''
+  cuvis_ai_version: 0.7.0

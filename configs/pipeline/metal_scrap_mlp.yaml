@@ -1,0 +1,46 @@
+# Metal-scrap per-pixel spectral MLP (Gursch et al. 2026 MLP baseline).
+# Patch batches arrive from the metal_scrap_patch data module: the batch keys `patches` and
+# `targets` auto-inject into the classifier and the loss/metrics target ports; the classifier's
+# `logits` fan out to the weighted-CE loss and the segmentation metrics.
+metadata:
+  name: Metal_Scrap_MLP
+  description: Per-pixel spectral MLP over 7x7 patch centers, weighted CE, 14 material classes.
+  tags: [metal_scrap, classification, mlp]
+plugins:
+- cuvis_ai_inspecscrap
+nodes:
+- name: standardizer
+  class_name: cuvis_ai_inspecscrap.node.normalization.PerChannelStandardizer
+  hparams:
+    in_channels: 437
+    eps: 1.0e-06
+- name: classifier
+  class_name: cuvis_ai_inspecscrap.node.classification.mlp.SpectralMLPClassifier
+  hparams:
+    in_channels: 437
+    num_classes: 14
+    hidden1: 256
+    hidden2: 128
+    dropout: 0.0
+- name: loss
+  class_name: cuvis_ai_inspecscrap.node.losses.WeightedCrossEntropyLoss
+  hparams:
+    num_classes: 14
+    class_weights: [0.265022, 1.795148, 11.892858, 0.517081, 0.0, 0.517081, 1.69898, 1.902857, 1.69898, 1.902857, 0.464112, 1.559719, 2.162338, 4.324676]
+    weight: 1.0
+    ignore_index: -100
+    label_smoothing: 0.0
+- name: metrics
+  class_name: cuvis_ai_inspecscrap.node.metrics.MulticlassSegmentationMetrics
+  hparams:
+    num_classes: 14
+    ignore_index: -100
+    class_names: [steel, aluminium, copper, dark_rust_metal, light_rust_metal, painted_metal, can, stone, wood, painted_wood, plastic, rubber, styropor, fabric]
+    execution_stages: null
+connections:
+- source: standardizer.outputs.normalized
+  target: classifier.inputs.patches
+- source: classifier.outputs.logits
+  target: loss.inputs.logits
+- source: classifier.outputs.logits
+  target: metrics.inputs.logits

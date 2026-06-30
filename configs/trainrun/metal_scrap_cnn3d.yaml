@@ -1,0 +1,30 @@
+# Metal-scrap 3D-CNN trainrun (paper's best model). See metal_scrap_mlp.yaml for run commands.
+name: metal_scrap_cnn3d
+pipeline: ../pipeline/metal_scrap_cnn3d.yaml
+data:
+  data_module: metal_scrap_patch
+  batch_size: 128
+  params:
+    root: data/HSIMetalScrap
+    patch_size: 7
+    train_samples: 600
+    val_samples: 400
+    eval_cap: 5000
+    seed: 42
+training:
+  seed: 42
+  optimizer:
+    name: adam
+    lr: 0.001
+  trainer:
+    max_epochs: 25
+    accelerator: auto
+    devices: 1
+    precision: 32-true
+    enable_progress_bar: true
+    enable_checkpointing: false
+    log_every_n_steps: 10
+unfreeze_nodes: [classifier]
+loss_nodes: [loss]
+metric_nodes: [metrics]
+output_dir: outputs/metal_scrap_cnn3d
