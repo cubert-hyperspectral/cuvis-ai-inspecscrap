@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 import torch
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import Dataset
 
 from cuvis_ai_inspecscrap.data.dense_patch_datamodule import (
     DensePatchDataModule,

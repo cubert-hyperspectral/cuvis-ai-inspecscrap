@@ -74,6 +74,7 @@ class MulticlassSegmentationMetrics(Node):
         self._last_key: tuple[Any, int] | None = None
 
     def _class_label(self, i: int) -> str:
+        """Return the configured name for class ``i``, or ``class_<i>`` as a fallback."""
         if self.class_names is not None and i < len(self.class_names):
             return self.class_names[i]
         return f"class_{i}"
@@ -118,7 +119,9 @@ class MulticlassSegmentationMetrics(Node):
     ) -> dict[str, Any]:
         """Accumulate the confusion matrix for this batch and emit running metrics."""
         if logits is None and predictions is None:
-            raise ValueError("MulticlassSegmentationMetrics needs either 'logits' or 'predictions'.")
+            raise ValueError(
+                "MulticlassSegmentationMetrics needs either 'logits' or 'predictions'."
+            )
         if predictions is not None:
             preds = predictions.reshape(-1).to(torch.long)
         else:

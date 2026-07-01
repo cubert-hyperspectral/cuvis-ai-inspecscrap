@@ -16,6 +16,9 @@ env/
 .ruff_cache/
 .mypy_cache/
 .ipynb_checkpoints/
+.coverage
+coverage.xml
+htmlcov/
 
 # Large regenerated artifacts (not deliverables)
 .patch_cache/
@@ -23,8 +26,9 @@ reports/ckpt/
 reports/logs/
 outputs/
 
-# Dataset: download from Zenodo (DOI 10.5281/zenodo.17076238); not redistributed here
-data/
+# Dataset: download from Zenodo (DOI 10.5281/zenodo.17076238); not redistributed here.
+# Root-anchored so it never shadows the package's cuvis_ai_inspecscrap/data/ module dir.
+/data/
 
 # OS
 .DS_Store

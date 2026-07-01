@@ -45,9 +45,7 @@ class SpatialSpectralCNN2D(PatchClassifierBase):
             nn.BatchNorm2d(c3),
             nn.ReLU(),
         )
-        self.head = nn.Sequential(
-            nn.AdaptiveAvgPool2d(1), nn.Flatten(), nn.Linear(c3, num_classes)
-        )
+        self.head = nn.Sequential(nn.AdaptiveAvgPool2d(1), nn.Flatten(), nn.Linear(c3, num_classes))
 
     def forward(self, patches: Tensor, **_: Any) -> dict[str, Tensor]:
         """``[N,P,P,C]`` -> ``[N,C,P,P]`` -> conv blocks -> ``logits [N,num_classes]``."""

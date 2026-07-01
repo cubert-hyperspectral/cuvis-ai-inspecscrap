@@ -1,22 +1,150 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "cuvis-ai-inspecscrap"
-version = "0.2.0"
-description = "Cuvis.AI nodes reproducing the InSpecScrap SWIR steel-scrap pixel classifier (Gursch et al. 2026): patch sampling, MLP/2D-CNN/3D-CNN models, weighted cross-entropy, segmentation metrics, and object-level majority vote"
+dynamic = ["version"]
+description = "Cuvis.AI nodes reproducing the InSpecScrap SWIR steel-scrap pixel classifier (Gursch et al. 2026)."
 readme = "README.md"
 requires-python = ">=3.11"
-authors = [{ name = "Cubert GmbH" }]
-# TIFF reading + label pairing come from the cuvis-ai-dataloader `tiff_paired` DataModule;
-# cuvis-ai / cuvis-ai-dataloader[tiff] are provided by the runtime env.
+license = "Apache-2.0"
+authors = [
+    { name = "Cubert GmbH, Ulm, Germany", email = "cuvis.ai@cubert-gmbh.de" },
+]
+maintainers = [
+    { name = "Cubert GmbH", email = "cuvis.ai@cubert-gmbh.de" },
+]
+keywords = [
+    "cuvis",
+    "hyperspectral",
+    "steel-scrap",
+    "classification",
+    "plugin",
+    "cuvis-ai",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Operating System :: OS Independent",
+]
 dependencies = [
+    # Depend only on cuvis-ai-core + cuvis-ai-schemas, never the high-level `cuvis-ai`
+    # package (which eagerly imports the proprietary Cuvis SDK at module load). TIFF
+    # reading + label pairing come from the cuvis-ai-dataloader `tiff_paired` DataModule,
+    # provided by the runtime env via its [tiff] extra.
+    "cuvis-ai-core>=0.10.0",
+    "cuvis-ai-schemas>=0.7.0",
+    "torch>=2.1",
+    "numpy>=1.20.0",
     "pillow>=10.0",
     "scikit-image>=0.22",
-    "numpy",
-    "torch",
 ]
 
-[build-system]
-requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.build_meta"
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.8.0",
+    "pip-audit>=2.7.0",
+    "detect-secrets>=1.4.0",
+    "bandit[toml]>=1.7.5",
+    "interrogate>=1.7.0",
+]
+# Heavy I/O for the TIFF-backed data modules (metal_scrap, metal_scrap_patch,
+# metal_scrap_dense_patch). The manifest's data-module entries declare `extras: [tiff]`,
+# so the loader installs cuvis-ai-inspecscrap[tiff] on demand when a pipeline uses them.
+tiff = [
+    "cuvis-ai-dataloader[tiff]>=0.2.0",
+]
+
+[project.urls]
+Homepage = "https://www.cubert-hyperspectral.com/"
+Repository = "https://github.com/cubert-hyperspectral/cuvis-ai-inspecscrap"
+Issues = "https://github.com/cubert-hyperspectral/cuvis-ai-inspecscrap/issues"
+Changelog = "https://github.com/cubert-hyperspectral/cuvis-ai-inspecscrap/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
 include = ["cuvis_ai_inspecscrap*"]
+
+[tool.uv.sources]
+# uv.lock is generated with --no-sources; CI uses --locked --no-sources so releases
+# resolve dependencies from normal indexes the way an external user would.
+torch = { index = "pytorch-cu128" }
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "C4"]
+extend-select = ["ANN201", "ANN202", "ANN204"]
+ignore = ["ANN401", "E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["ANN201", "ANN202", "ANN204"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+pythonpath = ["."]
+markers = [
+    "unit: small, fast tests that don't touch network or large data files.",
+    "slow: heavy tests or ones that download weights.",
+    "integration: full-stack / manifest-loading tests.",
+]
+
+[tool.coverage.run]
+source = ["cuvis_ai_inspecscrap"]
+branch = true
+omit = ["*/tests/*"]
+
+[tool.coverage.report]
+fail_under = 70
+show_missing = true
+
+[tool.bandit]
+exclude_dirs = ["tests", "scripts", ".venv"]
+skips = ["B101"]
+
+[tool.interrogate]
+# Docstring-coverage gate, run in CI as `interrogate -c pyproject.toml cuvis_ai_inspecscrap`.
+# __init__ methods are covered by their class docstring; nested helpers are exempt.
+fail-under = 85
+ignore-init-method = true
+ignore-nested-functions = true
+ignore-magic = false
+ignore-module = false
+ignore-private = false
+ignore-semiprivate = false
+ignore-property-decorators = false
+ignore-setters = false
+exclude = ["tests", "build", "dist"]
+ignore-regex = ["^get$", "^set$", "^main$"]
+verbose = 1
+
+[tool.mypy]
+python_version = "3.11"
+warn_unused_configs = true
+ignore_missing_imports = true
+exclude = ["tests", "build", "dist"]
+
+[tool.setuptools_scm]
+# Version is derived from git tags (vX.Y.Z). Pre-tag builds get a .postN.devM+g<sha>
+# wheel version; a fresh source tree with no tag falls back to fallback_version.
+version_scheme = "post-release"
+local_scheme = "node-and-date"
+fallback_version = "0.2.0"

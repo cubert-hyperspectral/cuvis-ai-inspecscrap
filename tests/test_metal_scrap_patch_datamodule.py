@@ -99,8 +99,12 @@ def test_eval_stage_is_dense_capped(tmp_path, monkeypatch):
 def test_cache_is_reused(tmp_path, monkeypatch):
     cache = tmp_path / "cache"
     dm = MetalScrapPatchDataModule(
-        root=str(tmp_path), patch_size=3, train_samples=8, seed=0,
-        cache_dir=str(cache), labelmap_path=_labelmap(tmp_path),
+        root=str(tmp_path),
+        patch_size=3,
+        train_samples=8,
+        seed=0,
+        cache_dir=str(cache),
+        labelmap_path=_labelmap(tmp_path),
     )
     calls = {"n": 0}
 
@@ -120,8 +124,12 @@ def test_cache_is_reused(tmp_path, monkeypatch):
 
 def test_predict_reuses_test_patches(tmp_path, monkeypatch):
     dm = MetalScrapPatchDataModule(
-        root=str(tmp_path), patch_size=3, eval_cap=5, seed=0,
-        cache_dir=str(tmp_path / "cache"), labelmap_path=_labelmap(tmp_path),
+        root=str(tmp_path),
+        patch_size=3,
+        eval_cap=5,
+        seed=0,
+        cache_dir=str(tmp_path / "cache"),
+        labelmap_path=_labelmap(tmp_path),
     )
     monkeypatch.setattr(dm, "_frame_dataset", lambda stage: _FakeFrames(1))
     dm.build_stage_dataset("test")

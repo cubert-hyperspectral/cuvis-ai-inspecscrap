@@ -26,6 +26,7 @@ def _confident_logits(targets: torch.Tensor, k: int) -> torch.Tensor:
 
 # --- WeightedCrossEntropyLoss -------------------------------------------------
 
+
 def test_loss_perfect_prediction_near_zero():
     node = WeightedCrossEntropyLoss(num_classes=3)
     targets = torch.tensor([0, 1, 2, 0])
@@ -265,7 +266,9 @@ def test_metrics_accumulate_and_reset_on_epoch():
     assert _as_dict(out["metrics"])["pixel_accuracy"] == pytest.approx(0.5)
     # new epoch resets the confusion -> only the fresh (correct) batch counts
     c_new = Context(stage=ExecutionStage.TEST, epoch=1, batch_idx=0)
-    out2 = node.forward(targets=torch.tensor([0, 1]), context=c_new, predictions=torch.tensor([0, 1]))
+    out2 = node.forward(
+        targets=torch.tensor([0, 1]), context=c_new, predictions=torch.tensor([0, 1])
+    )
     assert _as_dict(out2["metrics"])["pixel_accuracy"] == pytest.approx(1.0)
 
 

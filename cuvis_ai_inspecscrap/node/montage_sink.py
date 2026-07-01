@@ -158,7 +158,9 @@ class MontageColumnSink(Node):
                 labelmap_path=self.labelmap_path,
                 n_columns=self.legend_n_columns,
             )
-            grid = legend.forward(frame=grid, label_rgb=self._labels[legend_col].unsqueeze(0))["frame"]
+            grid = legend.forward(frame=grid, label_rgb=self._labels[legend_col].unsqueeze(0))[
+                "frame"
+            ]
         self._montage = grid
 
 

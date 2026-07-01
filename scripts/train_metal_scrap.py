@@ -67,8 +67,11 @@ class LossHistory(pl.Callback):
             return float(v) if v is not None else None
 
         self.history.append(
-            {"epoch": int(trainer.current_epoch), "train_loss": g("train_loss"),
-             "val_loss": g("val_loss")}
+            {
+                "epoch": int(trainer.current_epoch),
+                "train_loss": g("train_loss"),
+                "val_loss": g("val_loss"),
+            }
         )
 
 
@@ -123,8 +126,12 @@ def _write_report(
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default="mlp", choices=["mlp", "cnn2d", "cnn3d"])
-    ap.add_argument("--split", default="frame", choices=["frame", "object"],
-                    help="frame = whole-frame 80/20; object = per-piece 80/20 (paper protocol).")
+    ap.add_argument(
+        "--split",
+        default="frame",
+        choices=["frame", "object"],
+        help="frame = whole-frame 80/20; object = per-piece 80/20 (paper protocol).",
+    )
     ap.add_argument("--root", default=_DEFAULT_ROOT)
     ap.add_argument("--patch-size", type=int, default=7)
     ap.add_argument("--train-samples", type=int, default=600)
@@ -132,8 +139,12 @@ def main() -> None:
     ap.add_argument("--eval-cap", type=int, default=5000)
     ap.add_argument("--max-test-frames", type=int, default=0)
     ap.add_argument("--epochs", type=int, default=1)
-    ap.add_argument("--early-stop-patience", type=int, default=0,
-                    help="EarlyStopping patience on val_loss; 0 disables (fixed epochs).")
+    ap.add_argument(
+        "--early-stop-patience",
+        type=int,
+        default=0,
+        help="EarlyStopping patience on val_loss; 0 disables (fixed epochs).",
+    )
     ap.add_argument("--batch-size", type=int, default=256)
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--seed", type=int, default=42)
@@ -246,10 +257,13 @@ def main() -> None:
 
     # Authoritative epoch-level metrics from the confusion matrix (not Lightning's batch-mean).
     md = metrics.epoch_metrics()
-    best_val = min((h["val_loss"] for h in loss_cb.history if h["val_loss"] is not None),
-                   default=None)
-    print(f"[converge] epochs_run={len(loss_cb.history)} stopped_early={stopped_early} "
-          f"best_val_loss={best_val}")
+    best_val = min(
+        (h["val_loss"] for h in loss_cb.history if h["val_loss"] is not None), default=None
+    )
+    print(
+        f"[converge] epochs_run={len(loss_cb.history)} stopped_early={stopped_early} "
+        f"best_val_loss={best_val}"
+    )
     report = _write_report(args.model, md, len(loss_cb.history), metrics_dir, args.split)
 
     pipeline.save_to_file(

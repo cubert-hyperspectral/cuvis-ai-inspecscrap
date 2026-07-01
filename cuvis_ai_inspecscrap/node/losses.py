@@ -17,9 +17,8 @@ from typing import Any
 
 import torch
 import torch.nn.functional as F
-from cuvis_ai.node.losses import LossNode
 from cuvis_ai_core.node import Node
-from cuvis_ai_schemas.enums import NodeCategory, NodeTag
+from cuvis_ai_schemas.enums import ExecutionStage, NodeCategory, NodeTag
 from cuvis_ai_schemas.execution import InputStream
 from cuvis_ai_schemas.pipeline import PortSpec
 from torch import Tensor
@@ -40,7 +39,7 @@ def inverse_frequency_from_counts(counts: Tensor, num_classes: int) -> Tensor:
     )
 
 
-class WeightedCrossEntropyLoss(LossNode):
+class WeightedCrossEntropyLoss(Node):
     """Class-weighted multi-class cross-entropy over flattened logits + integer targets."""
 
     _category = NodeCategory.LOSS
@@ -88,18 +87,21 @@ class WeightedCrossEntropyLoss(LossNode):
         self.weight = float(weight)
         self.ignore_index = int(ignore_index)
         self.label_smoothing = float(label_smoothing)
+        # LossNode lives in the high-level `cuvis_ai` package (which eagerly imports the Cuvis
+        # SDK), so this plugin stays on cuvis-ai-core and pins the loss stages itself: a loss
+        # runs in TRAIN / VAL / TEST, never INFERENCE.
+        kwargs.pop("execution_stages", None)
         super().__init__(
             num_classes=num_classes,
             class_weights=list(class_weights) if class_weights is not None else None,
             weight=weight,
             ignore_index=ignore_index,
             label_smoothing=label_smoothing,
+            execution_stages={ExecutionStage.TRAIN, ExecutionStage.VAL, ExecutionStage.TEST},
             **kwargs,
         )
         if class_weights is not None:
-            self.register_buffer(
-                "_class_weights", torch.tensor(class_weights, dtype=torch.float32)
-            )
+            self.register_buffer("_class_weights", torch.tensor(class_weights, dtype=torch.float32))
         else:
             self._class_weights = None
 

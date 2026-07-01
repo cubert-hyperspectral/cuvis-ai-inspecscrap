@@ -59,11 +59,7 @@ def _parse_labelmap(path: Path) -> list[tuple[str, tuple[int, int, int]]]:
 def _count_instances(label_rgb_u8: np.ndarray, color: tuple[int, int, int]) -> int:
     """Connected-component count for one class colour on an H x W x 3 uint8 image."""
     r, g, b = color
-    mask = (
-        (label_rgb_u8[..., 0] == r)
-        & (label_rgb_u8[..., 1] == g)
-        & (label_rgb_u8[..., 2] == b)
-    )
+    mask = (label_rgb_u8[..., 0] == r) & (label_rgb_u8[..., 1] == g) & (label_rgb_u8[..., 2] == b)
     if not mask.any():
         return 0
     _, n = cc_label(mask, connectivity=2, return_num=True)
@@ -154,6 +150,7 @@ class LegendStripNode(Node):
         self._legend_h = n_rows * self.tile_height_px + 2 * self.text_padding_px
 
     def _render_strip(self, width: int, counts: list[int] | None) -> torch.Tensor:
+        """Draw the legend strip: one colour swatch and label per class, dimmed at zero count."""
         bg = tuple(int(c * 255) for c in self.background_color)
         img = Image.new("RGB", (width, self._legend_h), bg)
         draw = ImageDraw.Draw(img)
@@ -187,6 +184,7 @@ class LegendStripNode(Node):
         label_rgb: torch.Tensor | None = None,
         **_: Any,
     ) -> dict[str, torch.Tensor]:
+        """Stack the class legend below the frame, labelling each class with its pixel count."""
         b, h, w, c = frame.shape
         counts: list[int] | None = None
         if label_rgb is not None:

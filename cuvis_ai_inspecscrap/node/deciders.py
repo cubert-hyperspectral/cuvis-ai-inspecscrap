@@ -73,7 +73,9 @@ class BlobMajorityVote(Node):
         inst = torch.as_tensor(labeled.astype("int64"), device=foreground_frame.device)
         if self.ignore_instance != 0:
             # cc_label uses 0 for background; remap so background == ignore_instance.
-            inst = torch.where(inst == 0, torch.tensor(self.ignore_instance, device=inst.device), inst)
+            inst = torch.where(
+                inst == 0, torch.tensor(self.ignore_instance, device=inst.device), inst
+            )
         return inst
 
     @torch.no_grad()
@@ -91,7 +93,9 @@ class BlobMajorityVote(Node):
         out = predictions.clone()
         for i in range(b):
             preds_i = predictions[i]
-            inst_i = instances[i] if instances is not None else self._derive_instances(foreground[i])
+            inst_i = (
+                instances[i] if instances is not None else self._derive_instances(foreground[i])
+            )
             for obj in torch.unique(inst_i).tolist():
                 if obj == self.ignore_instance:
                     continue

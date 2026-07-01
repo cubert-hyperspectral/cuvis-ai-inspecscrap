@@ -1,5 +1,11 @@
 # cuvis-ai-inspecscrap
 
+[![CI](https://github.com/cubert-hyperspectral/cuvis-ai-inspecscrap/actions/workflows/ci.yml/badge.svg)](https://github.com/cubert-hyperspectral/cuvis-ai-inspecscrap/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/cubert-hyperspectral/cuvis-ai-inspecscrap/branch/main/graph/badge.svg)](https://codecov.io/gh/cubert-hyperspectral/cuvis-ai-inspecscrap)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+
 A [Cuvis.AI](https://github.com/cubert-hyperspectral/cuvis-ai) reproduction of the InSpecScrap
 SWIR hyperspectral steel-scrap pixel classifier from Gursch et al. (2026). The paper's MLP, 2D-CNN,
 and 3D-CNN classifiers, its class-weighted cross-entropy loss, its pixel/macro metrics, and the
