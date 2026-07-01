@@ -92,8 +92,13 @@ def test_getitem_label_only(tmp_path):
 
 def test_split_is_deterministic(tmp_path):
     _make_tree(tmp_path, {"DataSet0": 8, "DataSet1": 6, "DataSet3": 2})
-    kw = dict(root=str(tmp_path), split_mode="random_frame", val_fraction=0.25, seed=7,
-              read_cube=False)
+    kw = {
+        "root": str(tmp_path),
+        "split_mode": "random_frame",
+        "val_fraction": 0.25,
+        "seed": 7,
+        "read_cube": False,
+    }
     a = MetalScrapDataModule(**kw)
     a.setup()
     b = MetalScrapDataModule(**kw)

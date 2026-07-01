@@ -31,13 +31,21 @@ class ClassMapAccumulator(Node):
 
     INPUT_SPECS = {
         "logits": PortSpec(
-            dtype=torch.float32, shape=(-1, -1), description="Per-patch class logits [N, num_classes]"
+            dtype=torch.float32,
+            shape=(-1, -1),
+            description="Per-patch class logits [N, num_classes]",
         ),
-        "frame_id": PortSpec(dtype=torch.int64, shape=(-1,), description="Source frame id per patch [N]"),
+        "frame_id": PortSpec(
+            dtype=torch.int64, shape=(-1,), description="Source frame id per patch [N]"
+        ),
         "y": PortSpec(dtype=torch.int64, shape=(-1,), description="Pixel row per patch [N]"),
         "x": PortSpec(dtype=torch.int64, shape=(-1,), description="Pixel column per patch [N]"),
-        "height": PortSpec(dtype=torch.int64, shape=(-1,), description="Source frame height per patch [N]"),
-        "width": PortSpec(dtype=torch.int64, shape=(-1,), description="Source frame width per patch [N]"),
+        "height": PortSpec(
+            dtype=torch.int64, shape=(-1,), description="Source frame height per patch [N]"
+        ),
+        "width": PortSpec(
+            dtype=torch.int64, shape=(-1,), description="Source frame width per patch [N]"
+        ),
     }
     OUTPUT_SPECS: dict[str, PortSpec] = {}  # sink node
 

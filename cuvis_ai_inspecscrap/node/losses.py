@@ -97,9 +97,7 @@ class WeightedCrossEntropyLoss(LossNode):
             **kwargs,
         )
         if class_weights is not None:
-            self.register_buffer(
-                "_class_weights", torch.tensor(class_weights, dtype=torch.float32)
-            )
+            self.register_buffer("_class_weights", torch.tensor(class_weights, dtype=torch.float32))
         else:
             self._class_weights = None
 

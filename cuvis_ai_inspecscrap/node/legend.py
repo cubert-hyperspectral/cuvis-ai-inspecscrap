@@ -59,11 +59,7 @@ def _parse_labelmap(path: Path) -> list[tuple[str, tuple[int, int, int]]]:
 def _count_instances(label_rgb_u8: np.ndarray, color: tuple[int, int, int]) -> int:
     """Connected-component count for one class colour on an H x W x 3 uint8 image."""
     r, g, b = color
-    mask = (
-        (label_rgb_u8[..., 0] == r)
-        & (label_rgb_u8[..., 1] == g)
-        & (label_rgb_u8[..., 2] == b)
-    )
+    mask = (label_rgb_u8[..., 0] == r) & (label_rgb_u8[..., 1] == g) & (label_rgb_u8[..., 2] == b)
     if not mask.any():
         return 0
     _, n = cc_label(mask, connectivity=2, return_num=True)

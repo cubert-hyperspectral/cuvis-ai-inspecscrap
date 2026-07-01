@@ -198,11 +198,9 @@ class RgbLabelToClassIndex(Node):
             rgb = (rgb * 255.0).round()
         rgb = rgb.to(torch.int64)
         code = (rgb[..., 0] << 16) | (rgb[..., 1] << 8) | rgb[..., 2]  # [B,H,W]
-        targets = torch.full(
-            code.shape, self.ignore_index, dtype=torch.int64, device=code.device
-        )
+        targets = torch.full(code.shape, self.ignore_index, dtype=torch.int64, device=code.device)
         palette_codes = self._palette_codes.to(code.device)
         palette_ids = self._palette_ids.to(code.device)
-        for pcode, pid in zip(palette_codes.tolist(), palette_ids.tolist()):
+        for pcode, pid in zip(palette_codes.tolist(), palette_ids.tolist(), strict=False):
             targets[code == pcode] = pid
         return {"targets": targets}

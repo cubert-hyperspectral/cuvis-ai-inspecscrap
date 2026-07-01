@@ -39,7 +39,9 @@ class PatchSampler(Node):
     }
     OUTPUT_SPECS = {
         "patches": PortSpec(
-            dtype=torch.float32, shape=(-1, -1, -1, -1), description="Center-pixel patches [N,P,P,C]"
+            dtype=torch.float32,
+            shape=(-1, -1, -1, -1),
+            description="Center-pixel patches [N,P,P,C]",
         ),
         "labels": PortSpec(
             dtype=torch.int64, shape=(-1,), description="Center-pixel class labels [N]"
@@ -117,9 +119,9 @@ class PatchSampler(Node):
             ci = coords[sel]  # [N,2]
             lab = labels_i[sel]  # [N]
             if r > 0:
-                padded = F.pad(
-                    cube_i.permute(2, 0, 1).unsqueeze(0), (r, r, r, r), mode="reflect"
-                )[0].permute(1, 2, 0)  # [H+2r, W+2r, C]
+                padded = F.pad(cube_i.permute(2, 0, 1).unsqueeze(0), (r, r, r, r), mode="reflect")[
+                    0
+                ].permute(1, 2, 0)  # [H+2r, W+2r, C]
             else:
                 padded = cube_i
             rows = ci[:, 0].unsqueeze(1) + torch.arange(p, device=ci.device)  # [N,P]

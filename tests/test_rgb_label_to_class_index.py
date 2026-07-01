@@ -46,8 +46,7 @@ def test_maps_known_colors_collision_and_unknown(tmp_path):
     )
     # [1, 2, 3] image: iron, copper, collision-color, unknown, background
     label = torch.tensor(
-        [[[242, 239, 244], [133, 75, 20], [255, 204, 51]],
-         [[9, 9, 9], [0, 0, 0], [242, 239, 244]]],
+        [[[242, 239, 244], [133, 75, 20], [255, 204, 51]], [[9, 9, 9], [0, 0, 0], [242, 239, 244]]],
         dtype=torch.uint8,
     ).unsqueeze(0)  # [1, 2, 3, 3]
     out = node.forward(label_rgb=label)["targets"]
@@ -91,9 +90,7 @@ def test_float_input_normalized(tmp_path):
 
 def test_real_labelmap_default_mapping_builds(tmp_path):
     """The shipped defaults must build against the real LabelMap.txt (collision resolved)."""
-    real = Path(
-        "data/HSIMetalScrap/LabelMap.txt"
-    )
+    real = Path("data/HSIMetalScrap/LabelMap.txt")
     if not real.exists():
         pytest.skip("real LabelMap.txt not present")
     node = RgbLabelToClassIndex(labelmap_path=str(real))

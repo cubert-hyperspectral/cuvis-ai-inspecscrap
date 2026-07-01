@@ -63,9 +63,7 @@ def test_montage_sink_concatenates_columns_in_order(tmp_path):
     panels = torch.stack([torch.full((24, 16, 3), v) for v in (0.2, 0.5, 0.8)])  # [3,24,16,3]
     labels = torch.zeros((3, 24, 16, 3), dtype=torch.uint8)
     # Feed columns out of order to prove the sink sorts by column_index.
-    sink.forward(
-        frame=panels, column_index=torch.tensor([2, 0, 1]), label_rgb=labels
-    )
+    sink.forward(frame=panels, column_index=torch.tensor([2, 0, 1]), label_rgb=labels)
     assert sink.montage is None  # not finalized until close()
     sink.close()
 
