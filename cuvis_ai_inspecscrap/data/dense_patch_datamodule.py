@@ -50,14 +50,22 @@ class _DensePatchDataset(Dataset):
         item_rows: list[Tensor] = []
         for frame_id, frame in enumerate(frames):
             cube = torch.from_numpy(np.ascontiguousarray(frame["cube"])).float()  # [H,W,C]
-            padded = F.pad(
-                cube.permute(2, 0, 1).unsqueeze(0), (radius, radius, radius, radius), mode="reflect"
-            )[0].permute(1, 2, 0).contiguous()  # [H+2r, W+2r, C]
+            padded = (
+                F.pad(
+                    cube.permute(2, 0, 1).unsqueeze(0),
+                    (radius, radius, radius, radius),
+                    mode="reflect",
+                )[0]
+                .permute(1, 2, 0)
+                .contiguous()
+            )  # [H+2r, W+2r, C]
             self._padded.append(padded)
             targets = frame["targets"]  # [H,W] int64
             self._targets.append(torch.as_tensor(targets, dtype=torch.long))
             height, width = int(targets.shape[0]), int(targets.shape[1])
-            self.frame_meta.append({"stem": frame.get("stem", str(frame_id)), "height": height, "width": width})
+            self.frame_meta.append(
+                {"stem": frame.get("stem", str(frame_id)), "height": height, "width": width}
+            )
             coords = (targets != ignore_index).nonzero(as_tuple=False)  # [M,2] row-major
             fid_col = torch.full((coords.shape[0], 1), frame_id, dtype=torch.long)
             item_rows.append(torch.cat([fid_col, coords.to(torch.long)], dim=1))  # [M,3]
@@ -110,7 +118,9 @@ class DensePatchDataModule(BaseCuvisAIDataModule):
         if params:
             root = root or params.get("root")
             patch_size = params.get("patch_size", patch_size)
-            frame_indices = frame_indices if frame_indices is not None else params.get("frame_indices")
+            frame_indices = (
+                frame_indices if frame_indices is not None else params.get("frame_indices")
+            )
             ignore_index = params.get("ignore_index", ignore_index)
             split_mode = params.get("split_mode", split_mode)
             test_fraction = params.get("test_fraction", test_fraction)

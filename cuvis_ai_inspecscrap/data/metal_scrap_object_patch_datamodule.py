@@ -8,10 +8,11 @@ reproducible and leak-safe at the piece level. One pass over all frames builds a
 once (each cube is read only once). Patches are served one-per-item, identical to
 ``MetalScrapPatchDataModule``, so the framework training path is unchanged.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, ClassVar
+from typing import ClassVar
 
 import numpy as np
 import torch
@@ -35,8 +36,12 @@ class MetalScrapObjectPatchDataModule(MetalScrapPatchDataModule):
     def _all_frames(self) -> Dataset:
         """Every frame (no frame-level split), cubes read."""
         return MetalScrapDataModule(
-            root=str(self.root), split_mode="random_frame", test_fraction=0.0,
-            val_fraction=0.0, seed=self.seed, read_cube=True,
+            root=str(self.root),
+            split_mode="random_frame",
+            test_fraction=0.0,
+            val_fraction=0.0,
+            seed=self.seed,
+            read_cube=True,
         ).build_stage_dataset("train")
 
     def _obj_stage(self, frame_idx: int, obj_id: int) -> str:
@@ -63,11 +68,21 @@ class MetalScrapObjectPatchDataModule(MetalScrapPatchDataModule):
         mapper = self._mapper()
         frame_ds = self._all_frames()
         samplers = {
-            "train": PatchSampler(patch_size=self.patch_size, samples_per_frame=self.train_samples,
-                                  class_balanced=True, mode="train"),
-            "val": PatchSampler(patch_size=self.patch_size, samples_per_frame=self.val_samples,
-                                class_balanced=True, mode="train"),
-            "test": PatchSampler(patch_size=self.patch_size, mode="eval", max_per_frame=self.eval_cap),
+            "train": PatchSampler(
+                patch_size=self.patch_size,
+                samples_per_frame=self.train_samples,
+                class_balanced=True,
+                mode="train",
+            ),
+            "val": PatchSampler(
+                patch_size=self.patch_size,
+                samples_per_frame=self.val_samples,
+                class_balanced=True,
+                mode="train",
+            ),
+            "test": PatchSampler(
+                patch_size=self.patch_size, mode="eval", max_per_frame=self.eval_cap
+            ),
         }
         acc: dict[str, tuple[list, list]] = {s: ([], []) for s in _STAGE_CODE}
         n = len(frame_ds)

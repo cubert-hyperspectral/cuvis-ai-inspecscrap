@@ -85,9 +85,7 @@ class MetalScrapPatchDataModule(BaseCuvisAIDataModule):
         self.test_fraction = float(test_fraction)
         self.val_fraction = float(val_fraction)
         self.cache_dir = (
-            Path(cache_dir)
-            if cache_dir
-            else (Path(__file__).resolve().parents[2] / ".patch_cache")
+            Path(cache_dir) if cache_dir else (Path(__file__).resolve().parents[2] / ".patch_cache")
         )
         self.labelmap_path = (
             str(labelmap_path)
@@ -121,7 +119,11 @@ class MetalScrapPatchDataModule(BaseCuvisAIDataModule):
 
     # -- patch extraction ------------------------------------------------------
     def _accumulate(
-        self, frame_ds: Dataset, mapper: RgbLabelToClassIndex, sampler: PatchSampler, max_frames: int
+        self,
+        frame_ds: Dataset,
+        mapper: RgbLabelToClassIndex,
+        sampler: PatchSampler,
+        max_frames: int,
     ) -> tuple[Tensor, Tensor]:
         """Read frames once, sample patches, concatenate to ``([N,P,P,C], [N])`` on CPU."""
         patches: list[Tensor] = []

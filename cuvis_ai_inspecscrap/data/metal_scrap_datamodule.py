@@ -142,9 +142,7 @@ class MetalScrapDataModule(BaseCuvisAIDataModule):
         image_dirs = sorted(root_path.glob("DataSet*/images"))
         if not image_dirs:
             raise ValueError(f"no DataSet*/images directories under {root_path}")
-        has_tif = any(
-            any(d.glob(f"*.{ext}")) for d in image_dirs for ext in _IMAGE_GLOBS
-        )
+        has_tif = any(any(d.glob(f"*.{ext}")) for d in image_dirs for ext in _IMAGE_GLOBS)
         if not has_tif:
             raise ValueError(f"no *.tif/*.tiff under {root_path}/DataSet*/images")
 
