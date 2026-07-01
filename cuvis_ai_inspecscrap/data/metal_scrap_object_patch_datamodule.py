@@ -55,6 +55,7 @@ class MetalScrapObjectPatchDataModule(MetalScrapPatchDataModule):
         return "train"
 
     def _cache(self, stage: str) -> Path:
+        """Return the on-disk cache path for a stage's object-split patch tensor."""
         p, s = self.patch_size, self.seed
         if stage in ("train", "val"):
             n = self.train_samples if stage == "train" else self.val_samples

@@ -150,6 +150,7 @@ class LegendStripNode(Node):
         self._legend_h = n_rows * self.tile_height_px + 2 * self.text_padding_px
 
     def _render_strip(self, width: int, counts: list[int] | None) -> torch.Tensor:
+        """Draw the legend strip: one colour swatch and label per class, dimmed at zero count."""
         bg = tuple(int(c * 255) for c in self.background_color)
         img = Image.new("RGB", (width, self._legend_h), bg)
         draw = ImageDraw.Draw(img)
@@ -183,6 +184,7 @@ class LegendStripNode(Node):
         label_rgb: torch.Tensor | None = None,
         **_: Any,
     ) -> dict[str, torch.Tensor]:
+        """Stack the class legend below the frame, labelling each class with its pixel count."""
         b, h, w, c = frame.shape
         counts: list[int] | None = None
         if label_rgb is not None:

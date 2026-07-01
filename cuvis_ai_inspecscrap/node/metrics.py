@@ -74,6 +74,7 @@ class MulticlassSegmentationMetrics(Node):
         self._last_key: tuple[Any, int] | None = None
 
     def _class_label(self, i: int) -> str:
+        """Return the configured name for class ``i``, or ``class_<i>`` as a fallback."""
         if self.class_names is not None and i < len(self.class_names):
             return self.class_names[i]
         return f"class_{i}"

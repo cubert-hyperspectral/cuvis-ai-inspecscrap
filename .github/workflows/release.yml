@@ -33,6 +33,7 @@ jobs:
         run: |
           uv run --no-sources --extra dev ruff format --check cuvis_ai_inspecscrap tests
           uv run --no-sources --extra dev ruff check cuvis_ai_inspecscrap tests
+          uv run --no-sources --extra dev interrogate -c pyproject.toml cuvis_ai_inspecscrap
 
       - name: Reject local path sources in [tool.uv.sources]
         run: |

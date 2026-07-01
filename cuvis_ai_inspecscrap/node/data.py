@@ -56,6 +56,7 @@ class TiffDataNode(Node):
         wavelengths: torch.Tensor,
         **_: Any,
     ) -> dict[str, Any]:
+        """Re-emit the batch cube as float32 and its wavelengths as a numpy int32 vector."""
         wl = wavelengths[0] if wavelengths.ndim == 2 else wavelengths
         return {
             "cube": cube.to(torch.float32),

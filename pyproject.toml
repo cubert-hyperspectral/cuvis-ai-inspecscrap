@@ -57,6 +57,7 @@ dev = [
     "pip-audit>=2.7.0",
     "detect-secrets>=1.4.0",
     "bandit[toml]>=1.7.5",
+    "interrogate>=1.7.0",
 ]
 # Heavy I/O for the TIFF-backed data modules (metal_scrap, metal_scrap_patch,
 # metal_scrap_dense_patch). The manifest's data-module entries declare `extras: [tiff]`,
@@ -118,6 +119,22 @@ show_missing = true
 [tool.bandit]
 exclude_dirs = ["tests", "scripts", ".venv"]
 skips = ["B101"]
+
+[tool.interrogate]
+# Docstring-coverage gate, run in CI as `interrogate -c pyproject.toml cuvis_ai_inspecscrap`.
+# __init__ methods are covered by their class docstring; nested helpers are exempt.
+fail-under = 85
+ignore-init-method = true
+ignore-nested-functions = true
+ignore-magic = false
+ignore-module = false
+ignore-private = false
+ignore-semiprivate = false
+ignore-property-decorators = false
+ignore-setters = false
+exclude = ["tests", "build", "dist"]
+ignore-regex = ["^get$", "^set$", "^main$"]
+verbose = 1
 
 [tool.mypy]
 python_version = "3.11"

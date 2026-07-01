@@ -59,7 +59,7 @@ jobs:
           fail_ci_if_error: false
 
   lint:
-    name: Focused Ruff Checks
+    name: Lint and docstring coverage
     runs-on: ubuntu-latest
 
     steps:
@@ -79,6 +79,9 @@ jobs:
 
       - name: Run ruff
         run: uv run --no-sources --locked --extra dev ruff check cuvis_ai_inspecscrap tests
+
+      - name: Check docstring coverage
+        run: uv run --no-sources --locked --extra dev interrogate -c pyproject.toml cuvis_ai_inspecscrap
 
   typecheck:
     name: Type checking

@@ -161,6 +161,7 @@ class DensePatchDataModule(BaseCuvisAIDataModule):
         return frame_dm.build_stage_dataset(stage)
 
     def _mapper(self) -> RgbLabelToClassIndex:
+        """Build the RGB-to-class-index label mapper from the configured labelmap."""
         if self.labelmap_path is None:
             raise ValueError("DensePatchDataModule needs a labelmap_path or root.")
         return RgbLabelToClassIndex(labelmap_path=self.labelmap_path)
