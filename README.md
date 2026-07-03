@@ -22,12 +22,12 @@ present in the data). The full write-up, with figures, is in
 |---|---:|---:|
 | MLP | 62.3% | 59.99% |
 | 2D-CNN | 62.4% | 74.06% |
-| 3D-CNN (best) | 73.6% | 76.47% |
+| 3D-CNN (best) | 71.5% | 76.47% |
 
 The 3D-CNN reproduces the paper's pixel accuracy on a whole-frame split and reaches 62.9% under a
-stricter leak-safe per-piece split. The object-level majority vote lifts dense accuracy from 79.4%
-to 86.4%, and an off-the-shelf `MaskRobustifier` cleanup stage from the Cuvis.AI node catalog lifts
-the full-test prediction from 79.4% to 83.5% with no retraining. The paper's model ranking
+stricter leak-safe per-piece split. The object-level majority vote lifts dense accuracy from 77.3%
+to 83.6%, and an off-the-shelf `MaskRobustifier` cleanup stage from the Cuvis.AI node catalog lifts
+the full-test prediction from 77.3% to 80.4% with no retraining. The paper's model ranking
 (3D-CNN > 2D-CNN > MLP) holds throughout.
 
 ## What is in the plugin
