@@ -8,42 +8,42 @@ Object-level = BlobMajorityVote (connected components, conn=2) over each frame's
 
 | metric | value |
 |---|---:|
-| pixel accuracy | 79.39% |
-| macro precision | 73.06% |
-| macro recall | 80.15% |
+| pixel accuracy | 77.29% |
+| macro precision | 71.48% |
+| macro recall | 78.02% |
 
 | class | recall |
 |---|---:|
-| steel | 83.55% |
-| aluminium | 84.75% |
-| dark_rust_metal | 96.22% |
-| painted_metal | 89.77% |
-| stone | 96.39% |
-| wood | 96.06% |
-| painted_wood | 98.46% |
-| plastic | 54.89% |
-| rubber | 37.57% |
-| styropor | 63.86% |
+| steel | 77.36% |
+| aluminium | 82.11% |
+| dark_rust_metal | 96.67% |
+| painted_metal | 89.03% |
+| stone | 94.13% |
+| wood | 97.95% |
+| painted_wood | 96.72% |
+| plastic | 44.07% |
+| rubber | 30.02% |
+| styropor | 72.14% |
 
 ### Object-level (majority vote)
 
 | metric | value |
 |---|---:|
-| pixel accuracy | 86.44% |
-| macro precision | 86.29% |
-| macro recall | 82.87% |
+| pixel accuracy | 83.63% |
+| macro precision | 83.14% |
+| macro recall | 77.42% |
 
 | class | recall |
 |---|---:|
-| steel | 97.19% |
+| steel | 82.35% |
 | aluminium | 100.00% |
 | dark_rust_metal | 100.00% |
-| painted_metal | 99.83% |
+| painted_metal | 100.00% |
 | stone | 100.00% |
 | wood | 30.07% |
 | painted_wood | 100.00% |
-| plastic | 43.47% |
-| rubber | 58.19% |
+| plastic | 43.44% |
+| rubber | 18.30% |
 | styropor | 100.00% |
 
 ### Copper-confusion read

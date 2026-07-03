@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.1 - 2026-07-03
+
+- **Refreshed the reproduction report** from a fresh, from-scratch training run (all three models,
+  both the whole-frame and leak-safe per-piece splits, 200-epoch cap with early stopping). The
+  figures, metric tables, and model weights are regenerated, and the HTML report's tables and
+  headline figures are now derived directly from the run's metrics rather than static values.
+- **Registered `InverseFrequencyClassWeights`** in the plugin manifest so the Phase-1 class-weight
+  estimator is discoverable alongside `WeightedCrossEntropyLoss`.
+
 ## 0.2.0 - 2026-06-30
 
 Initial public release. A Cuvis.AI reproduction of the InSpecScrap SWIR steel-scrap pixel

@@ -26,5 +26,5 @@ Trained via `restore-trainrun`-style GradientTrainer (PyTorch Lightning), 104 ep
 | fabric | 0.73% |
 
 ## Notes
-- Framework training path: nodes wired into a CuvisPipeline, optimised by GradientTrainer; patches served by MetalScrapPatchDataModule (cached). Provisional 29->14 merge; random-frame split. A 1-epoch run is a smoke test, not the reproduction number.
+- Framework training path: nodes wired into a CuvisPipeline, optimised by GradientTrainer; patches served from a cached patch pool. Provisional 29->14 merge; per-object 80/20 (paper protocol).
 
