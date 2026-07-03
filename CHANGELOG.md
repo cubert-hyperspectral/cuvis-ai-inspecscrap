@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+- **Corrected the README result numbers** to match the refreshed v0.2.1 report: 3D-CNN whole-frame
+  pixel accuracy 71.5%, object-level majority vote 77.3% -> 83.6%, and `MaskRobustifier` cleanup
+  77.3% -> 80.4%. The prior values were carried over from the pre-retrain report.
+
 ## 0.2.1 - 2026-07-03
 
 - **Refreshed the reproduction report** from a fresh, from-scratch training run (all three models,
