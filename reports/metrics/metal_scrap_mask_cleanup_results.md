@@ -4,8 +4,8 @@ Off-the-shelf cuvis-ai node-catalog cleanup nodes applied to the raw per-pixel 3
 
 | stage | pixel acc | macro P | macro R |
 |---|---:|---:|---:|
-| raw prediction | 79.39% | 73.06% | 80.15% |
-| MaskRobustifier (per-class morphology) | 83.47% | 77.67% | 84.06% |
+| raw prediction | 77.29% | 71.48% | 78.02% |
+| MaskRobustifier (per-class morphology) | 80.36% | 75.26% | 81.18% |
 
-The MaskRobustifier cleanup node is part of the Cuvis.AI node catalog.
+Node loaded from the cuvis-ai-extend-node-catalog checkout via the `cuvis_ai_extend_node_catalog` local-path plugin manifest.
 

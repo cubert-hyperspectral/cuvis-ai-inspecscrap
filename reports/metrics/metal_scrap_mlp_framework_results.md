@@ -1,6 +1,6 @@
-# Metal-scrap MLP results (framework path)
+# Metal-scrap MLP results (framework path, random-frame 80/20)
 
-Trained via `restore-trainrun`-style GradientTrainer (PyTorch Lightning), 69 epoch(s), Adam lr=1e-3, weighted CE, random-frame split (seed 42), 7x7 patches.
+Trained via `restore-trainrun`-style GradientTrainer (PyTorch Lightning), 69 epoch(s), Adam lr=1e-3, weighted CE, random-frame 80/20 (seed 42), 7x7 patches.
 
 | metric | this run | paper Table 2 |
 |---|---:|---:|
@@ -24,5 +24,5 @@ Trained via `restore-trainrun`-style GradientTrainer (PyTorch Lightning), 69 epo
 | styropor | 76.11% |
 
 ## Notes
-- Framework training path: nodes wired into a CuvisPipeline, optimised by GradientTrainer; patches served by MetalScrapPatchDataModule (cached). Provisional 29->14 merge; random-frame split. A 1-epoch run is a smoke test, not the reproduction number.
+- Framework training path: nodes wired into a CuvisPipeline, optimised by GradientTrainer; patches served from a cached patch pool. Provisional 29->14 merge; random-frame 80/20.
 

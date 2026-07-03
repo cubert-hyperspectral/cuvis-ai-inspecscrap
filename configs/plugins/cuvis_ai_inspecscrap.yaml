@@ -169,6 +169,23 @@ capabilities:
       optional: false
       description: Scalar weighted CE loss
   doc_summary: Class-weighted multi-class cross-entropy over flattened logits + integer targets.
+- class_name: cuvis_ai_inspecscrap.node.losses.InverseFrequencyClassWeights
+  category: transform
+  tags: [classification, torch, training]
+  icon_svg: "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\" fill=\"none\" stroke=\"#6FAE5C\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n  <path d=\"M52 26a20 20 0 0 0-36 0\"/>\n  <path d=\"M52 16v10h-10\"/>\n  <path d=\"M12 38a20 20 0 0 0 36 0\"/>\n  <path d=\"M12 48v-10h10\"/>\n</svg>\n"
+  input_specs:
+    targets:
+      dtype: int64
+      shape: [-1]
+      optional: true
+      description: Integer class targets [N] from the batch (ignore_index entries dropped)
+  output_specs:
+    class_weights:
+      dtype: float32
+      shape: [-1]
+      optional: false
+      description: Inverse-frequency class weights [num_classes], fitted in Phase 1
+  doc_summary: Entry node that fits inverse-frequency class weights from the training-label distribution.
 - class_name: cuvis_ai_inspecscrap.node.metrics.MulticlassSegmentationMetrics
   category: metric
   tags: [classification, evaluation]
