@@ -1,7 +1,8 @@
 # Changelog
 
-## [Unreleased]
+## 0.2.2 - 2026-07-17
 
+- Require `cuvis-ai-schemas>=0.8.0` and `cuvis-ai-core>=0.11.2`, adopting the released cuvis-ai-next framework versions.
 - **Corrected the README result numbers** to match the refreshed v0.2.1 report: 3D-CNN whole-frame
   pixel accuracy 71.5%, object-level majority vote 77.3% -> 83.6%, and `MaskRobustifier` cleanup
   77.3% -> 80.4%. The prior values were carried over from the pre-retrain report.
