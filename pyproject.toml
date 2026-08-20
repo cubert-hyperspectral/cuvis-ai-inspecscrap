@@ -75,9 +75,12 @@ Changelog = "https://github.com/cubert-hyperspectral/cuvis-ai-inspecscrap/blob/m
 [tool.setuptools.packages.find]
 include = ["cuvis_ai_inspecscrap*"]
 
+# Local development only: pins this repo's own venv (where this pyproject is the
+# resolution root) to CUDA torch. Installs of this package as a git or registry
+# dependency never read these tables; the orchestrator (cuvis-ai-core >= 0.12.1)
+# mirrors the host's installed torch build into each composed child env instead.
+# The committed uv.lock is resolved without these sources; they bind only on a re-lock.
 [tool.uv.sources]
-# uv.lock is generated with --no-sources; CI uses --locked --no-sources so releases
-# resolve dependencies from normal indexes the way an external user would.
 torch = { index = "pytorch-cu128" }
 
 [[tool.uv.index]]
