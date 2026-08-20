@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.3 - 2026-08-20
+
+- Documented the torch cu128 index tables as local-development-only: installs of this package as a
+  git or registry dependency never read them, the committed lock is resolved without these sources,
+  and composed child environments mirror the host's torch build (cuvis-ai-core >= 0.12.1).
+
 ## 0.2.2 - 2026-07-17
 
 - Require `cuvis-ai-schemas>=0.8.0` and `cuvis-ai-core>=0.11.2`, adopting the released cuvis-ai-next framework versions.
