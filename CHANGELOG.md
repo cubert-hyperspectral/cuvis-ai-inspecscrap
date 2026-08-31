@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.4 - 2026-08-31
+
+- Scoped the torch cu128 index pin to a `cuda` dependency group (installed by default in this
+  checkout). This corrects 0.2.3's claim that the tables were local-development-only: uv DOES
+  read a git dependency's `[tool.uv.sources]`, so the unscoped pin leaked into every composed
+  child environment pulling this plugin from git and collided with the host-mirrored torch
+  index there (cu130 on a Jetson Thor host). Consumers never install a dependency's groups, so
+  the scoped pin binds nothing outside this checkout. The committed lock now resolves torch
+  from the cu128 index; CI drops `--no-sources` from its `--locked` invocations accordingly.
+  On an aarch64 checkout, sync without the pin: `uv sync --no-default-groups`.
+
 ## 0.2.3 - 2026-08-20
 
 - Documented the torch cu128 index tables as local-development-only: installs of this package as a

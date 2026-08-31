@@ -75,13 +75,26 @@ Changelog = "https://github.com/cubert-hyperspectral/cuvis-ai-inspecscrap/blob/m
 [tool.setuptools.packages.find]
 include = ["cuvis_ai_inspecscrap*"]
 
-# Local development only: pins this repo's own venv (where this pyproject is the
-# resolution root) to CUDA torch. Installs of this package as a git or registry
-# dependency never read these tables; the orchestrator (cuvis-ai-core >= 0.12.1)
-# mirrors the host's installed torch build into each composed child env instead.
-# The committed uv.lock is resolved without these sources; they bind only on a re-lock.
+[tool.uv]
+default-groups = ["cuda"]
+
+[dependency-groups]
+# Floors live in [project].dependencies; this group only carries the cu128 index pin.
+# torchvision (transitive via cuvis-ai-core) rides along so the torch/torchvision
+# pair stays ABI-matched (same-build) in this checkout - a cu128 torch next to a
+# PyPI torchvision dies with "operator torchvision::nms does not exist".
+cuda = ["torch", "torchvision"]
+
+# The cu128 pin is scoped to the `cuda` dependency group (installed by default here)
+# because uv also reads a git or path dependency's `[tool.uv.sources]`: an unscoped
+# `torch = { index = ... }` reaches every composed child environment that pulls this
+# repo from git and collides with the host-mirrored torch index there (cu130 on a
+# Jetson Thor host, cpu on a CPU-only host). Consumers never install a dependency's
+# groups, so the scoped pin binds nothing outside this checkout. On an aarch64
+# checkout, sync without the pin: `uv sync --no-default-groups`.
 [tool.uv.sources]
-torch = { index = "pytorch-cu128" }
+torch = { index = "pytorch-cu128", group = "cuda" }
+torchvision = { index = "pytorch-cu128", group = "cuda" }
 
 [[tool.uv.index]]
 name = "pytorch-cu128"
