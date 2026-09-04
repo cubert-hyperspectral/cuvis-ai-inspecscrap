@@ -24,6 +24,8 @@ class MulticlassSegmentationMetrics(Node):
 
     _category = NodeCategory.METRIC
     _tags = frozenset({NodeTag.EVALUATION, NodeTag.CLASSIFICATION})
+    # Declared on the class (cuvis-ai-core 0.14.1): metrics run in val/test only.
+    EXECUTION_STAGES = frozenset({ExecutionStage.VAL, ExecutionStage.TEST})
 
     INPUT_SPECS = {
         "logits": PortSpec(
@@ -51,18 +53,12 @@ class MulticlassSegmentationMetrics(Node):
         num_classes: int,
         ignore_index: int = -100,
         class_names: list[str] | None = None,
-        execution_stages: set[ExecutionStage] | None = None,
         **kwargs: Any,
     ) -> None:
         self.num_classes = int(num_classes)
         self.ignore_index = int(ignore_index)
         self.class_names = list(class_names) if class_names is not None else None
-        name, execution_stages = Node.consume_base_kwargs(
-            kwargs, execution_stages or {ExecutionStage.VAL, ExecutionStage.TEST}
-        )
         super().__init__(
-            name=name,
-            execution_stages=execution_stages,
             num_classes=num_classes,
             ignore_index=ignore_index,
             class_names=self.class_names,

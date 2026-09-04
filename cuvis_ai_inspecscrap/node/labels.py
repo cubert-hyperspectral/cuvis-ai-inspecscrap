@@ -19,10 +19,11 @@ from JOANNEUM RESEARCH; it is captured so the label-sanity baseline is reviewabl
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import torch
 from cuvis_ai_core.node import Node
-from cuvis_ai_schemas.enums import ExecutionStage, NodeCategory, NodeTag
+from cuvis_ai_schemas.enums import NodeCategory, NodeTag
 from cuvis_ai_schemas.pipeline import PortSpec
 
 #: Paper's 14 material classes, in a fixed order (class id = position). Macro metrics
@@ -136,8 +137,7 @@ class RgbLabelToClassIndex(Node):
         paper_classes: list[str] | None = None,
         ignore_colors: list[list[int]] | None = None,
         ignore_index: int = -100,
-        name: str | None = None,
-        execution_stages: set[ExecutionStage] | None = None,
+        **kwargs: Any,
     ) -> None:
         classes = tuple(paper_classes) if paper_classes is not None else PAPER_CLASSES
         mapping = dict(source_to_class) if source_to_class is not None else DEFAULT_SOURCE_TO_PAPER
@@ -152,8 +152,7 @@ class RgbLabelToClassIndex(Node):
             paper_classes=list(classes),
             ignore_colors=[list(c) for c in sorted(ignore_rgb)],
             ignore_index=ignore_index,
-            name=name,
-            execution_stages=execution_stages,
+            **kwargs,
         )
         self.num_classes = len(classes)
         self.ignore_index = int(ignore_index)

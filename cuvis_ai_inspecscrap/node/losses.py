@@ -46,6 +46,10 @@ class WeightedCrossEntropyLoss(Node):
     _tags = frozenset(
         {NodeTag.TRAINING, NodeTag.DIFFERENTIABLE, NodeTag.TORCH, NodeTag.CLASSIFICATION}
     )
+    # Declared on the class (cuvis-ai-core 0.14.1): a loss runs in train/val/test, never
+    # inference. LossNode lives in the high-level `cuvis_ai` package (which eagerly imports the
+    # Cuvis SDK), so this plugin stays on cuvis-ai-core and declares the stages itself.
+    EXECUTION_STAGES = frozenset({ExecutionStage.TRAIN, ExecutionStage.VAL, ExecutionStage.TEST})
 
     INPUT_SPECS = {
         "logits": PortSpec(
@@ -87,17 +91,12 @@ class WeightedCrossEntropyLoss(Node):
         self.weight = float(weight)
         self.ignore_index = int(ignore_index)
         self.label_smoothing = float(label_smoothing)
-        # LossNode lives in the high-level `cuvis_ai` package (which eagerly imports the Cuvis
-        # SDK), so this plugin stays on cuvis-ai-core and pins the loss stages itself: a loss
-        # runs in TRAIN / VAL / TEST, never INFERENCE.
-        kwargs.pop("execution_stages", None)
         super().__init__(
             num_classes=num_classes,
             class_weights=list(class_weights) if class_weights is not None else None,
             weight=weight,
             ignore_index=ignore_index,
             label_smoothing=label_smoothing,
-            execution_stages={ExecutionStage.TRAIN, ExecutionStage.VAL, ExecutionStage.TEST},
             **kwargs,
         )
         if class_weights is not None:

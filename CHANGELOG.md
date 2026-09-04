@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0 - 2026-09-04
+
+- `WeightedCrossEntropyLoss` and `MulticlassSegmentationMetrics` declare their execution stages on the class (`EXECUTION_STAGES`, cuvis-ai-core 0.14.1). The `execution_stages` constructor parameter of `MulticlassSegmentationMetrics` and `RgbLabelToClassIndex` is removed (both accept `**kwargs`, so a yaml `execution_stages: null` still loads); `consume_base_kwargs` is no longer used. Floors `cuvis-ai-core>=0.14.1`.
+
 ## 0.2.4 - 2026-08-31
 
 - Scoped the torch cu128 index pin to a `cuda` dependency group (installed by default in this
