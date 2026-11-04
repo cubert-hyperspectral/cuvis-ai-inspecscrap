@@ -6,6 +6,23 @@ name: cuvis_ai_inspecscrap
 path: "../.."                      # resolves from configs/plugins/ to the package root
 package_name: cuvis-ai-inspecscrap
 capabilities:
+- class_name: cuvis_ai_inspecscrap.node.normalization.PatchesToCube
+  category: source
+  tags: [hyperspectral, preprocessing]
+  icon_svg: "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\" fill=\"none\" stroke=\"#E8A33D\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n  <ellipse cx=\"22\" cy=\"18\" rx=\"12\" ry=\"4\"/>\n  <path d=\"M10 18v26c0 2.2 5.4 4 12 4s12-1.8 12-4V18\"/>\n  <path d=\"M10 28c0 2.2 5.4 4 12 4s12-1.8 12-4\"/>\n  <path d=\"M10 38c0 2.2 5.4 4 12 4s12-1.8 12-4\"/>\n  <path d=\"M40 32h14\"/>\n  <path d=\"M48 26l6 6-6 6\"/>\n</svg>\n"
+  input_specs:
+    patches:
+      dtype: float32
+      shape: [-1, -1, -1, -1]
+      optional: false
+      description: Center-pixel patches [N, P, P, C] from the batch
+  output_specs:
+    cube:
+      dtype: float32
+      shape: [-1, -1, -1, -1]
+      optional: false
+      description: Same tensor, renamed for cuvis_ai_builtin's Standardize
+  doc_summary: Rename the patch data modules' ``patches`` batch key to ``cube`` (no other change).
 - class_name: cuvis_ai_inspecscrap.node.data.TiffDataNode
   category: source
   tags: [hyperspectral]
@@ -178,7 +195,7 @@ capabilities:
       dtype: int64
       shape: [-1]
       optional: true
-      description: Integer class targets [N] from the batch (ignore_index entries dropped)
+      description: Integer class targets [N] from the batch (ignore_index dropped)
   output_specs:
     class_weights:
       dtype: float32
@@ -240,23 +257,6 @@ capabilities:
       optional: false
       description: Center-pixel class labels [N]
   doc_summary: Extract labeled center-pixel patches from a cube + integer target map.
-- class_name: cuvis_ai_inspecscrap.node.normalization.PerChannelStandardizer
-  category: transform
-  tags: [hyperspectral, normalization, preprocessing]
-  icon_svg: "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\" fill=\"none\" stroke=\"#6FAE5C\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n  <path d=\"M52 26a20 20 0 0 0-36 0\"/>\n  <path d=\"M52 16v10h-10\"/>\n  <path d=\"M12 38a20 20 0 0 0 36 0\"/>\n  <path d=\"M12 48v-10h10\"/>\n</svg>\n"
-  input_specs:
-    patches:
-      dtype: float32
-      shape: [-1, -1, -1, -1]
-      optional: false
-      description: Center-pixel patches [N, P, P, C]
-  output_specs:
-    normalized:
-      dtype: float32
-      shape: [-1, -1, -1, -1]
-      optional: false
-      description: Per-band standardized patches [N, P, P, C]
-  doc_summary: Standardize patches per spectral band with global training stats fitted in Phase 1.
 - class_name: cuvis_ai_inspecscrap.node.classification.mlp.SpectralMLPClassifier
   category: model
   tags: [classification, hyperspectral, learnable, torch]

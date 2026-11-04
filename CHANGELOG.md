@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- Removed `PerChannelStandardizer` outright; the three classifier pipelines and the six committed
+  `reports/models/*_framework.yaml` now list `cuvis_ai_builtin` in `plugins:` and wire
+  `cuvis_ai.node.pretreatments.standardize.Standardize(axis=channel, ddof=0, eps=1e-6, eps_mode=add)`
+  through a new `PatchesToCube` node (renames the patch data modules' `patches` batch key to the
+  `cube` port `Standardize` expects; no math, a straight pass-through). Confirmed bit-identical
+  classifier output on all six committed weight pairs, on a fixed random input, against the removed
+  class. `cuvis-ai>=0.21.0` is now a dev and `training`-extra dependency (used by the pipelines and
+  `scripts/train_metal_scrap.py`); this repo's own node and data-module code still depends only on
+  `cuvis-ai-core` and `cuvis-ai-schemas` and imports no `cuvis_ai` at runtime.
+
 ## 0.3.0 - 2026-09-04
 
 - `WeightedCrossEntropyLoss` and `MulticlassSegmentationMetrics` declare their execution stages on the class (`EXECUTION_STAGES`, cuvis-ai-core 0.14.1). The `execution_stages` constructor parameter of `MulticlassSegmentationMetrics` and `RgbLabelToClassIndex` is removed (both accept `**kwargs`, so a yaml `execution_stages: null` still loads); `consume_base_kwargs` is no longer used. Floors `cuvis-ai-core>=0.14.1`.

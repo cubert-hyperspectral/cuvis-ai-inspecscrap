@@ -36,10 +36,15 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    # Depend only on cuvis-ai-core + cuvis-ai-schemas, never the high-level `cuvis-ai`
-    # package (which eagerly imports the proprietary Cuvis SDK at module load). TIFF
-    # reading + label pairing come from the cuvis-ai-dataloader `tiff_paired` DataModule,
-    # provided by the runtime env via its [tiff] extra.
+    # Runtime code (cuvis_ai_inspecscrap/) depends only on cuvis-ai-core + cuvis-ai-schemas:
+    # the node classes, data modules and manifest never import the high-level `cuvis-ai`
+    # package. The pipelines under configs/pipeline/ and reports/models/ may list
+    # `cuvis_ai_builtin` in their `plugins:` and reference its node classes (e.g.
+    # `cuvis_ai.node.pretreatments.standardize.Standardize`) by name; the host that runs
+    # them (restore-pipeline, the gRPC orchestrator) supplies cuvis-ai, so it is a
+    # dev/scripts dependency here, never a runtime one. TIFF reading + label pairing come
+    # from the cuvis-ai-dataloader `tiff_paired` DataModule, provided by the runtime env
+    # via its [tiff] extra.
     "cuvis-ai-core>=0.14.1",
     "cuvis-ai-schemas>=0.8.0",
     "torch>=2.1",
@@ -58,12 +63,18 @@ dev = [
     "detect-secrets>=1.4.0",
     "bandit[toml]>=1.7.5",
     "interrogate>=1.7.0",
+    "cuvis-ai>=0.21.0",  # loads the pipeline yamls' cuvis_ai_builtin nodes (e.g. Standardize) in tests
 ]
 # Heavy I/O for the TIFF-backed data modules (metal_scrap, metal_scrap_patch,
 # metal_scrap_dense_patch). The manifest's data-module entries declare `extras: [tiff]`,
 # so the loader installs cuvis-ai-inspecscrap[tiff] on demand when a pipeline uses them.
 tiff = [
     "cuvis-ai-dataloader[tiff]>=0.2.0",
+]
+# Runtime deps for scripts/train_metal_scrap.py, which wires cuvis_ai_builtin's Standardize
+# into the training pipeline (see pyproject note on `dependencies` above).
+training = [
+    "cuvis-ai>=0.21.0",
 ]
 
 [project.urls]

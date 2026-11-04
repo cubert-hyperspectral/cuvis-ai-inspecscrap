@@ -22,6 +22,7 @@ from pathlib import Path
 
 import pytorch_lightning as pl
 import torch
+from cuvis_ai.node.pretreatments.standardize import Standardize
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 
 from cuvis_ai_core.pipeline.pipeline import CuvisPipeline
@@ -39,7 +40,7 @@ from cuvis_ai_inspecscrap.node.classification.mlp import SpectralMLPClassifier
 from cuvis_ai_inspecscrap.node.labels import PAPER_CLASSES
 from cuvis_ai_inspecscrap.node.losses import WeightedCrossEntropyLoss
 from cuvis_ai_inspecscrap.node.metrics import MulticlassSegmentationMetrics
-from cuvis_ai_inspecscrap.node.normalization import PerChannelStandardizer
+from cuvis_ai_inspecscrap.node.normalization import PatchesToCube
 
 _DEFAULT_ROOT = "data/HSIMetalScrap"
 _NUM_CLASSES = len(PAPER_CLASSES)
@@ -175,8 +176,10 @@ def main() -> None:
     train_labels = dm.train_ds.labels
     print(f"[data] train={len(dm.train_ds)} val={len(dm.val_ds)} patches ({time.time() - t0:.0f}s)")
 
-    in_channels = int(dm.train_ds.patches.shape[-1])
-    standardizer = PerChannelStandardizer(name="standardizer", in_channels=in_channels)
+    patches_bridge = PatchesToCube(name="patches_bridge")
+    standardizer = Standardize(
+        name="standardizer", axis="channel", ddof=0, eps=1e-6, eps_mode="add"
+    )
     classifier = _build_classifier(args.model)
     loss = WeightedCrossEntropyLoss(
         name="loss",
@@ -191,13 +194,14 @@ def main() -> None:
 
     pipeline = CuvisPipeline(f"Metal_Scrap_{args.model.upper()}")
     pipeline.connect(
-        (standardizer.normalized, classifier.patches),
+        (patches_bridge.outputs.cube, standardizer.inputs.cube),
+        (standardizer.outputs.cube, classifier.patches),
         (classifier.logits, loss.logits),
         (classifier.logits, metrics.logits),
     )
 
     # Phase 1: fit the per-band standardizer's global mean/std (StatisticalTrainer).
-    nodes = (standardizer, classifier, loss, metrics)
+    nodes = (patches_bridge, standardizer, classifier, loss, metrics)
     if any(node.requires_initial_fit for node in nodes):
         print("[phase 1] StatisticalTrainer: fitting per-band standardization stats ...")
         StatisticalTrainer(pipeline=pipeline, datamodule=dm).fit()

@@ -39,7 +39,9 @@ exposes the node and data-module family:
   TIFF cubes and paired colorized label PNGs and serve the paper's 7x7 spatial-spectral patches.
 - **`RgbLabelToClassIndex`**: fail-closed mapping from the release's colorized label PNGs to the
   paper's integer class taxonomy.
-- **`PerChannelStandardizer`**: the paper's global per-band z-score, fitted in the statistical phase.
+- **`PatchesToCube`**: renames the patch data modules' `patches` batch key to `cube` so it feeds
+  cuvis-ai's built-in `Standardize` node, which does the paper's global per-band z-score (fitted in
+  the statistical phase); the pipelines wire `patches -> PatchesToCube -> Standardize -> classifier`.
 - **`PatchSampler`**, **`SpectralMLPClassifier`**, **`SpatialSpectralCNN2D`**,
   **`SpectralSpatialCNN3D`**: the patch sampler and the three classifiers.
 - **`WeightedCrossEntropyLoss`**: inverse-frequency class-weighted multi-class cross-entropy.
@@ -47,6 +49,12 @@ exposes the node and data-module family:
   matrix.
 - **`BlobMajorityVote`**, **`ClassMapAccumulator`**, **`MontageColumnSink`**: object-level pooling
   and dense-inference / report assembly sinks.
+
+The pipelines under `configs/pipeline/` and the trained configs under `reports/models/` also list
+`cuvis_ai_builtin` in their `plugins:` and reference `cuvis_ai.node.pretreatments.standardize.Standardize`
+by name. This repo's own runtime code (the node and data-module classes) never imports `cuvis-ai`;
+the host that runs these pipelines (`restore-pipeline`, the gRPC orchestrator) supplies it, and it is
+a dev/scripts dependency here (see `pyproject.toml`), not a runtime one.
 
 ## Dataset
 
@@ -58,11 +66,14 @@ Download it and place it under `data/HSIMetalScrap` (the default `root` in the t
 
 ## Install
 
-Install Cuvis.AI (see the [framework repository](https://github.com/cubert-hyperspectral/cuvis-ai)
-for the current instructions), then install this plugin from a clone:
+This plugin's own runtime code depends only on `cuvis-ai-core` and `cuvis-ai-schemas`, never the
+high-level [`cuvis-ai`](https://github.com/cubert-hyperspectral/cuvis-ai) package. Running a
+pipeline needs `cuvis-ai` installed in the host env (it supplies `cuvis_ai_builtin`'s `Standardize`
+node that the pipelines reference), which `restore-pipeline` and `restore-trainrun` already assume:
 
 ```bash
 uv pip install -e .
+uv pip install "cuvis-ai>=0.21.0"   # or: uv sync --extra dev / --extra training
 ```
 
 ## Reproduce
@@ -71,13 +82,15 @@ After downloading the dataset to `data/HSIMetalScrap`, train any of the three mo
 framework trainers:
 
 ```bash
-# declarative: drive the trainrun config through restore-trainrun
+# declarative: drive the trainrun config through restore-trainrun. The pipeline lists
+# cuvis_ai_builtin (for Standardize), so pass its plugins dir alongside this repo's own.
 restore-trainrun \
   --trainrun-path configs/trainrun/metal_scrap_cnn3d.yaml \
   --plugins-dir   configs/plugins \
+  --plugins-dir   "$(python -c 'import cuvis_ai, os; print(os.path.join(os.path.dirname(cuvis_ai.__file__), "configs", "plugins"))')" \
   --mode          train
 
-# or scripted, with a leak-safe per-piece split
+# or scripted, with a leak-safe per-piece split (needs the `training` extra: uv sync --extra training)
 python scripts/train_metal_scrap.py --model cnn3d --split object --epochs 200
 ```
 
