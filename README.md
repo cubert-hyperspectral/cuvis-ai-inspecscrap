@@ -36,12 +36,13 @@ A single plugin manifest, [`configs/plugins/cuvis_ai_inspecscrap.yaml`](configs/
 exposes the node and data-module family:
 
 - **Data modules** (`metal_scrap`, `metal_scrap_patch`, `metal_scrap_dense_patch`): read the SWIR
-  TIFF cubes and paired colorized label PNGs and serve the paper's 7x7 spatial-spectral patches.
+  TIFF cubes and paired colorized label PNGs and serve the paper's 7x7 spatial-spectral patches as a
+  `cube` batch key (so it feeds cuvis-ai's built-in `Standardize` node directly; see "Breaking
+  change" below).
 - **`RgbLabelToClassIndex`**: fail-closed mapping from the release's colorized label PNGs to the
   paper's integer class taxonomy.
-- **`PatchesToCube`**: renames the patch data modules' `patches` batch key to `cube` so it feeds
-  cuvis-ai's built-in `Standardize` node, which does the paper's global per-band z-score (fitted in
-  the statistical phase); the pipelines wire `patches -> PatchesToCube -> Standardize -> classifier`.
+- The pipelines wire `cube -> Standardize -> classifier`: `Standardize` does the paper's global
+  per-band z-score, fitted in the statistical phase.
 - **`PatchSampler`**, **`SpectralMLPClassifier`**, **`SpatialSpectralCNN2D`**,
   **`SpectralSpatialCNN3D`**: the patch sampler and the three classifiers.
 - **`WeightedCrossEntropyLoss`**: inverse-frequency class-weighted multi-class cross-entropy.
@@ -55,6 +56,12 @@ The pipelines under `configs/pipeline/` and the trained configs under `reports/m
 by name. This repo's own runtime code (the node and data-module classes) never imports `cuvis-ai`;
 the host that runs these pipelines (`restore-pipeline`, the gRPC orchestrator) supplies it, and it is
 a dev/scripts dependency here (see `pyproject.toml`), not a runtime one.
+
+**Breaking change:** `MetalScrapPatchDataModule`, `MetalScrapObjectPatchDataModule`, and
+`DensePatchDataModule` now serve a `cube` batch key instead of `patches`, so the batch auto-injects
+into `Standardize`'s `cube` input port. A pipeline or script that read `batch["patches"]` from these
+data modules needs to read `batch["cube"]` instead. The on-disk patch caches under `.patch_cache/`
+keep their own internal `patches` key (an unrelated, unchanged format) and still load as-is.
 
 ## Dataset
 

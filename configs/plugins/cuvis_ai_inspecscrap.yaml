@@ -6,23 +6,6 @@ name: cuvis_ai_inspecscrap
 path: "../.."                      # resolves from configs/plugins/ to the package root
 package_name: cuvis-ai-inspecscrap
 capabilities:
-- class_name: cuvis_ai_inspecscrap.node.normalization.PatchesToCube
-  category: source
-  tags: [hyperspectral, preprocessing]
-  icon_svg: "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\" fill=\"none\" stroke=\"#E8A33D\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\">\n  <ellipse cx=\"22\" cy=\"18\" rx=\"12\" ry=\"4\"/>\n  <path d=\"M10 18v26c0 2.2 5.4 4 12 4s12-1.8 12-4V18\"/>\n  <path d=\"M10 28c0 2.2 5.4 4 12 4s12-1.8 12-4\"/>\n  <path d=\"M10 38c0 2.2 5.4 4 12 4s12-1.8 12-4\"/>\n  <path d=\"M40 32h14\"/>\n  <path d=\"M48 26l6 6-6 6\"/>\n</svg>\n"
-  input_specs:
-    patches:
-      dtype: float32
-      shape: [-1, -1, -1, -1]
-      optional: false
-      description: Center-pixel patches [N, P, P, C] from the batch
-  output_specs:
-    cube:
-      dtype: float32
-      shape: [-1, -1, -1, -1]
-      optional: false
-      description: Same tensor, renamed for cuvis_ai_builtin's Standardize
-  doc_summary: Rename the patch data modules' ``patches`` batch key to ``cube`` (no other change).
 - class_name: cuvis_ai_inspecscrap.node.data.TiffDataNode
   category: source
   tags: [hyperspectral]

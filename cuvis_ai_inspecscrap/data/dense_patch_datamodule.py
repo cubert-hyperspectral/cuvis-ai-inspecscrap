@@ -11,8 +11,10 @@ Every item carries its provenance ``(frame_id, y, x)`` plus the source ``height`
 downstream sink (``ClassMapAccumulator``) can scatter predictions back into ``[H, W]`` class maps.
 Only the reflect-padded cubes of the selected frames stay resident; patches are never pre-expanded.
 
-Emits per item ``{"patches" (P,P,C) f32, "frame_id" int, "y" int, "x" int, "height" int,
-"width" int, "targets" int}``. ``targets`` is the center pixel's class label, so a metrics sink
+Emits per item ``{"cube" (P,P,C) f32, "frame_id" int, "y" int, "x" int, "height" int,
+"width" int, "targets" int}``. The batch key is ``cube`` (not ``patches``) so it auto-injects
+into ``cuvis_ai_builtin``'s ``Standardize`` node, whose input port is fixed at ``cube``.
+``targets`` is the center pixel's class label, so a metrics sink
 (``MulticlassSegmentationMetrics``) can score the dense pass during inference.
 """
 
@@ -82,7 +84,7 @@ class _DensePatchDataset(Dataset):
         patch = self._padded[frame_id][y : y + p, x : x + p, :]  # center is original (y, x)
         meta = self.frame_meta[frame_id]
         return {
-            "patches": patch,
+            "cube": patch,
             "frame_id": frame_id,
             "y": y,
             "x": x,

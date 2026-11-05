@@ -1,7 +1,5 @@
 plugins: null
 nodes:
-- name: patches_bridge
-  class_name: cuvis_ai_inspecscrap.node.normalization.PatchesToCube
 - name: standardizer
   class_name: cuvis_ai.node.pretreatments.standardize.Standardize
   hparams:
@@ -61,8 +59,6 @@ nodes:
     - fabric
     execution_stages: null
 connections:
-- source: patches_bridge.outputs.cube
-  target: standardizer.inputs.cube
 - source: standardizer.outputs.cube
   target: classifier.inputs.patches
 - source: classifier.outputs.logits

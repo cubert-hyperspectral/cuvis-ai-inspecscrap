@@ -1,5 +1,6 @@
 # Metal-scrap spectral-spatial 3D-CNN (Gursch et al. 2026, best model: 76.47%).
 # Each 7x7 patch is a single-channel spectral volume; otherwise identical wiring to the MLP pipeline.
+# The batch key `cube` auto-injects into cuvis_ai_builtin's Standardize.
 metadata:
   name: Metal_Scrap_CNN3D
   description: Spectral-spatial 3D-CNN over 7x7 patches, weighted CE, 14 material classes.
@@ -8,8 +9,6 @@ plugins:
 - cuvis_ai_inspecscrap
 - cuvis_ai_builtin
 nodes:
-- name: patches_bridge
-  class_name: cuvis_ai_inspecscrap.node.normalization.PatchesToCube
 - name: standardizer
   class_name: cuvis_ai.node.pretreatments.standardize.Standardize
   hparams:
@@ -42,8 +41,6 @@ nodes:
     class_names: [steel, aluminium, copper, dark_rust_metal, light_rust_metal, painted_metal, can, stone, wood, painted_wood, plastic, rubber, styropor, fabric]
     execution_stages: null
 connections:
-- source: patches_bridge.outputs.cube
-  target: standardizer.inputs.cube
 - source: standardizer.outputs.cube
   target: classifier.inputs.patches
 - source: classifier.outputs.logits

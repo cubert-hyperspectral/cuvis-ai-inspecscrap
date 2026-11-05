@@ -73,8 +73,8 @@ def test_dense_dataset_item_shape_and_provenance():
     frames = _frames_for_dataset(1, h=6, w=8, c=4)
     ds = _DensePatchDataset(frames, patch_size=7, ignore_index=-100)
     item = ds[0]
-    assert item["patches"].shape == (7, 7, 4)
-    assert item["patches"].dtype == torch.float32
+    assert item["cube"].shape == (7, 7, 4)
+    assert item["cube"].dtype == torch.float32
     # First foreground pixel is row-major (0, 0); provenance + frame shape come back.
     assert item["frame_id"] == 0 and item["y"] == 0 and item["x"] == 0
     assert item["height"] == 6 and item["width"] == 8
@@ -96,7 +96,7 @@ def test_dense_dataset_center_pixel_matches_cube():
     ds = _DensePatchDataset(frames, patch_size=7, ignore_index=-100)
     item = ds[5]  # some foreground pixel
     y, x = item["y"], item["x"]
-    assert torch.allclose(item["patches"][3, 3], cube[y, x])  # center of a 7x7 patch
+    assert torch.allclose(item["cube"][3, 3], cube[y, x])  # center of a 7x7 patch
 
 
 # --- DensePatchDataModule ----------------------------------------------------
@@ -108,9 +108,9 @@ def test_datamodule_predict_dataloader_batches_with_provenance(tmp_path, monkeyp
     dm.setup(stage="predict")
     loader = dm.predict_dataloader()
     batch = next(iter(loader))
-    assert batch["patches"].shape[1:] == (7, 7, 4)
+    assert batch["cube"].shape[1:] == (7, 7, 4)
     for key in ("frame_id", "y", "x", "height", "width", "targets"):
-        assert batch[key].shape[0] == batch["patches"].shape[0]
+        assert batch[key].shape[0] == batch["cube"].shape[0]
     assert batch["height"][0].item() == 6 and batch["width"][0].item() == 8
 
 
