@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.0 - 2026-11-05
 
 - **Breaking:** `MetalScrapPatchDataModule`, `MetalScrapObjectPatchDataModule`, and
   `DensePatchDataModule` now serve a `cube` batch key instead of `patches`. Anything reading
