@@ -947,6 +947,7 @@ tiff = [
 ]
 training = [
     { name = "cuvis-ai" },
+    { name = "cuvis-ai-dataloader", extra = ["tiff"] },
 ]
 
 [package.dev-dependencies]
@@ -962,6 +963,7 @@ requires-dist = [
     { name = "cuvis-ai", marker = "extra == 'training'", specifier = ">=0.21.0" },
     { name = "cuvis-ai-core", specifier = ">=0.14.1" },
     { name = "cuvis-ai-dataloader", extras = ["tiff"], marker = "extra == 'tiff'", specifier = ">=0.2.0" },
+    { name = "cuvis-ai-inspecscrap", extras = ["tiff"], marker = "extra == 'training'" },
     { name = "cuvis-ai-schemas", specifier = ">=0.8.0" },
     { name = "detect-secrets", marker = "extra == 'dev'", specifier = ">=1.4.0" },
     { name = "interrogate", marker = "extra == 'dev'", specifier = ">=1.7.0" },

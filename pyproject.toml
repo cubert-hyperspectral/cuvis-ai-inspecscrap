@@ -72,9 +72,11 @@ tiff = [
     "cuvis-ai-dataloader[tiff]>=0.2.0",
 ]
 # Runtime deps for scripts/train_metal_scrap.py, which wires cuvis_ai_builtin's Standardize
-# into the training pipeline (see pyproject note on `dependencies` above).
+# into the training pipeline (see pyproject note on `dependencies` above). Includes `tiff`
+# since the script's data modules read TIFF cubes through cuvis-ai-dataloader at runtime.
 training = [
     "cuvis-ai>=0.21.0",
+    "cuvis-ai-inspecscrap[tiff]",
 ]
 
 [project.urls]

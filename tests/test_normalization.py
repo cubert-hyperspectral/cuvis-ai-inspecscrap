@@ -120,3 +120,36 @@ def test_migrated_pipeline_standardizer_matches_old_formula_bit_for_bit():
     actual = outputs[("standardizer", "cube")]
 
     assert torch.equal(actual, expected)
+
+
+def test_committed_mlp_checkpoint_matches_old_formula_bit_for_bit():
+    """Restore the committed ``reports/models/metal_scrap_mlp_framework`` checkpoint through the
+    real ``CuvisPipeline.load_pipeline`` weight-restore path (``Standardize._load_from_state_dict``
+    resizes the mean/std placeholders to the saved shape, then ``torch.nn.Module`` copies them in;
+    this is distinct from hand-assigning ``.mean.data``/``.std.data`` to a freshly constructed node,
+    the shortcut every other test in this file takes). Confirms the mean/std actually saved in the
+    six committed weight pairs survive that path and still reproduce the removed
+    ``PerChannelStandardizer``'s formula bit for bit, backing the migration's bit-identity claim
+    against a real checkpoint rather than synthetic stats."""
+    repo_root = Path(__file__).resolve().parents[1]
+    config_path = repo_root / "reports" / "models" / "metal_scrap_mlp_framework.yaml"
+    weights_path = config_path.with_suffix(".pt")
+
+    pipeline = CuvisPipeline.load_pipeline(str(config_path), weights_path=weights_path)
+    nodes = {n.name: n for n in pipeline.nodes}
+    standardizer = nodes["standardizer"]
+    assert isinstance(standardizer, Standardize)
+
+    checkpoint = torch.load(weights_path, map_location="cpu", weights_only=False)
+    saved_mean = checkpoint["state_dict"]["standardizer"]["mean"]
+    saved_std = checkpoint["state_dict"]["standardizer"]["std"]
+
+    torch.manual_seed(4)
+    c = saved_mean.numel()
+    probe = torch.randn(2, 5, 5, c)
+    expected = _old_formula_forward(probe, saved_mean.reshape(c), saved_std.reshape(c), eps=1e-6)
+
+    outputs = pipeline.forward(batch={"cube": probe})
+    actual = outputs[("standardizer", "cube")]
+
+    assert torch.equal(actual, expected)
