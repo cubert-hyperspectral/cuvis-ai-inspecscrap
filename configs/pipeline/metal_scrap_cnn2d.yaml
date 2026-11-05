@@ -1,17 +1,21 @@
 # Metal-scrap spatial-spectral 2D-CNN (Gursch et al. 2026, 74.06%).
 # Bands as input channels over the 7x7 patch; otherwise identical wiring to the MLP pipeline.
+# The batch key `cube` auto-injects into cuvis_ai_builtin's Standardize.
 metadata:
   name: Metal_Scrap_CNN2D
   description: Spatial-spectral 2D-CNN over 7x7 patches, weighted CE, 14 material classes.
   tags: [metal_scrap, classification, cnn2d]
 plugins:
 - cuvis_ai_inspecscrap
+- cuvis_ai_builtin
 nodes:
 - name: standardizer
-  class_name: cuvis_ai_inspecscrap.node.normalization.PerChannelStandardizer
+  class_name: cuvis_ai.node.pretreatments.standardize.Standardize
   hparams:
-    in_channels: 437
+    axis: channel
+    ddof: 0
     eps: 1.0e-06
+    eps_mode: add
 - name: classifier
   class_name: cuvis_ai_inspecscrap.node.classification.cnn2d.SpatialSpectralCNN2D
   hparams:
@@ -34,7 +38,7 @@ nodes:
     class_names: [steel, aluminium, copper, dark_rust_metal, light_rust_metal, painted_metal, can, stone, wood, painted_wood, plastic, rubber, styropor, fabric]
     execution_stages: null
 connections:
-- source: standardizer.outputs.normalized
+- source: standardizer.outputs.cube
   target: classifier.inputs.patches
 - source: classifier.outputs.logits
   target: loss.inputs.logits

@@ -1,10 +1,12 @@
 plugins: null
 nodes:
 - name: standardizer
-  class_name: cuvis_ai_inspecscrap.node.normalization.PerChannelStandardizer
+  class_name: cuvis_ai.node.pretreatments.standardize.Standardize
   hparams:
-    in_channels: 437
+    axis: channel
+    ddof: 0
     eps: 1.0e-06
+    eps_mode: add
 - name: classifier
   class_name: cuvis_ai_inspecscrap.node.classification.cnn3d.SpectralSpatialCNN3D
   hparams:
@@ -63,7 +65,7 @@ nodes:
     - fabric
     execution_stages: null
 connections:
-- source: standardizer.outputs.normalized
+- source: standardizer.outputs.cube
   target: classifier.inputs.patches
 - source: classifier.outputs.logits
   target: loss.inputs.logits

@@ -51,11 +51,11 @@ def test_tensor_patch_dataset_item_and_collate():
     ds = _TensorPatchDataset(patches, labels)
     assert len(ds) == 5
     item = ds[1]
-    assert item["patches"].shape == (3, 3, 4)
+    assert item["cube"].shape == (3, 3, 4)
     assert item["targets"] == 1 and isinstance(item["targets"], int)
 
     batch = next(iter(DataLoader(ds, batch_size=4)))
-    assert batch["patches"].shape == (4, 3, 3, 4)
+    assert batch["cube"].shape == (4, 3, 3, 4)
     assert batch["targets"].shape == (4,)
     assert batch["targets"].dtype == torch.int64
 
@@ -74,7 +74,7 @@ def test_build_stage_dataset_train_shapes(tmp_path, monkeypatch):
     train_ds = dm.build_stage_dataset("train")
     assert len(train_ds) > 0
     item = train_ds[0]
-    assert item["patches"].shape == (3, 3, 4)  # P x P x C
+    assert item["cube"].shape == (3, 3, 4)  # P x P x C
     labels = train_ds.labels
     assert labels.dtype == torch.int64
     # Only steel(0) / aluminium(1) are labeled; background is ignored, never sampled.

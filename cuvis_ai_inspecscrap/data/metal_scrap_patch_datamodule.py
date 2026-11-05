@@ -4,8 +4,9 @@
 in batches of 256. This module turns frames into patches once (the ``PatchSampler`` node, reusing an
 on-disk cache so the cube IO is paid only the first time per ``patch_size``) and serves **one patch
 per item**, so a ``DataLoader`` with ``batch_size=256`` collates to the paper's ``[256, P, P, C]`` +
-``[256]`` batch. The pipeline that consumes this is just ``classifier -> loss + metrics``: the batch
-keys ``patches`` / ``targets`` auto-inject into those nodes' input ports.
+``[256]`` batch. The pipeline that consumes this is ``standardizer -> classifier -> loss + metrics``:
+the batch keys ``cube`` / ``targets`` auto-inject into the ``cuvis_ai_builtin`` ``Standardize``
+node and the loss/metrics target ports.
 
 Train / val draw a class-balanced sample per frame (``train_samples`` / ``val_samples``); test takes
 a strided dense sample (``eval_cap`` per frame, optionally bounding the number of test frames) so the
@@ -31,7 +32,13 @@ from cuvis_ai_inspecscrap.node.patch_sampler import PatchSampler
 
 
 class _TensorPatchDataset(Dataset):
-    """In-memory patch pool: one ``{"patches": [P,P,C], "targets": int}`` item per patch."""
+    """In-memory patch pool: one ``{"cube": [P,P,C], "targets": int}`` item per patch.
+
+    The batch key is ``cube`` (not ``patches``) so it auto-injects into
+    ``cuvis_ai_builtin``'s ``Standardize`` node, whose input port is fixed at ``cube``; the
+    on-disk cache (``_load_or_build``) keeps its own ``patches`` key, since that format is
+    internal and unrelated to the batch contract.
+    """
 
     def __init__(self, patches: Tensor, labels: Tensor) -> None:
         self.patches = patches
@@ -41,11 +48,11 @@ class _TensorPatchDataset(Dataset):
         return int(self.patches.shape[0])
 
     def __getitem__(self, idx: int) -> dict[str, Any]:
-        return {"patches": self.patches[idx], "targets": int(self.labels[idx])}
+        return {"cube": self.patches[idx], "targets": int(self.labels[idx])}
 
 
 class MetalScrapPatchDataModule(BaseCuvisAIDataModule):
-    """Serve cached center-pixel patches as ``batch_size``-wide ``patches`` + ``targets`` batches."""
+    """Serve cached center-pixel patches as ``batch_size``-wide ``cube`` + ``targets`` batches."""
 
     DATA_MODULE_NAME: ClassVar[str] = "metal_scrap_patch"
 

@@ -1,11 +1,14 @@
 """Train a metal-scrap patch classifier through the cuvis-ai framework trainers.
 
 This is the framework training path (no hand-rolled loop): it wires the real nodes into a
-``CuvisPipeline`` (classifier -> WeightedCrossEntropyLoss + MulticlassSegmentationMetrics), serves
-the paper's 7x7 patch batches via ``MetalScrapPatchDataModule``, runs ``StatisticalTrainer`` (a no-op
-here, no node needs an initial fit) then ``GradientTrainer`` (PyTorch Lightning) for the optimisation,
-and reads the epoch-level test metrics off the metric node's accumulated confusion matrix. The same
-graph + data module are what ``restore-trainrun`` drives from ``configs/trainrun/metal_scrap_*.yaml``.
+``CuvisPipeline`` (cuvis_ai_builtin's ``Standardize`` -> classifier -> WeightedCrossEntropyLoss +
+MulticlassSegmentationMetrics), serves the paper's 7x7 patch batches via
+``MetalScrapPatchDataModule`` (batch keys ``cube`` / ``targets``, auto-injecting into the
+standardizer and the loss/metrics target ports), runs ``StatisticalTrainer`` to fit the
+standardizer's global per-band mean/std, then ``GradientTrainer`` (PyTorch Lightning) for the
+optimisation, and reads the epoch-level test metrics off the metric node's accumulated confusion
+matrix. The same graph + data module are what ``restore-trainrun`` drives from
+``configs/trainrun/metal_scrap_*.yaml``.
 
 Smoke (1 epoch, bounded test frames):
   PYTHONPATH=<plugin> <venv-py> scripts/train_metal_scrap.py --model mlp --epochs 1 --max-test-frames 6
@@ -22,8 +25,7 @@ from pathlib import Path
 
 import pytorch_lightning as pl
 import torch
-from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
-
+from cuvis_ai.node.pretreatments.standardize import Standardize
 from cuvis_ai_core.pipeline.pipeline import CuvisPipeline
 from cuvis_ai_core.training import GradientTrainer, StatisticalTrainer
 from cuvis_ai_core.training.config import (
@@ -31,6 +33,7 @@ from cuvis_ai_core.training.config import (
     PipelineMetadata,
     TrainerConfig,
 )
+from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 
 from cuvis_ai_inspecscrap.data import MetalScrapPatchDataModule
 from cuvis_ai_inspecscrap.node.classification.cnn2d import SpatialSpectralCNN2D
@@ -39,7 +42,6 @@ from cuvis_ai_inspecscrap.node.classification.mlp import SpectralMLPClassifier
 from cuvis_ai_inspecscrap.node.labels import PAPER_CLASSES
 from cuvis_ai_inspecscrap.node.losses import WeightedCrossEntropyLoss
 from cuvis_ai_inspecscrap.node.metrics import MulticlassSegmentationMetrics
-from cuvis_ai_inspecscrap.node.normalization import PerChannelStandardizer
 
 _DEFAULT_ROOT = "data/HSIMetalScrap"
 _NUM_CLASSES = len(PAPER_CLASSES)
@@ -175,8 +177,9 @@ def main() -> None:
     train_labels = dm.train_ds.labels
     print(f"[data] train={len(dm.train_ds)} val={len(dm.val_ds)} patches ({time.time() - t0:.0f}s)")
 
-    in_channels = int(dm.train_ds.patches.shape[-1])
-    standardizer = PerChannelStandardizer(name="standardizer", in_channels=in_channels)
+    standardizer = Standardize(
+        name="standardizer", axis="channel", ddof=0, eps=1e-6, eps_mode="add"
+    )
     classifier = _build_classifier(args.model)
     loss = WeightedCrossEntropyLoss(
         name="loss",
@@ -191,7 +194,7 @@ def main() -> None:
 
     pipeline = CuvisPipeline(f"Metal_Scrap_{args.model.upper()}")
     pipeline.connect(
-        (standardizer.normalized, classifier.patches),
+        (standardizer.outputs.cube, classifier.patches),
         (classifier.logits, loss.logits),
         (classifier.logits, metrics.logits),
     )
